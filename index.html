@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#EDE5D3">
+<title>个人博客</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="paper">
+
+  <header class="masthead">
+    <div class="masthead-bg" aria-hidden="true">
+      <div class="bg-slab"></div>
+      <div class="bg-red"></div>
+      <div class="bg-ray"></div>
+      <div class="bg-rings"><i></i><i></i><i></i></div>
+      <div class="bg-tri"></div>
+      <div class="bg-dots"></div>
+      <div class="bg-stripes"><i></i><i></i><i></i><i></i></div>
+    </div>
+    <div class="masthead-inner">
+      <div class="kicker" id="siteKicker">ЛИЧНЫЙ БЛОГ · 个人博客</div>
+      <h1 class="title">
+        <span class="title-main" id="siteTitle">名前</span>
+        <span class="title-ghost" id="siteTitleGhost" aria-hidden="true">名前</span>
+      </h1>
+      <div class="subtitle" id="siteSub">写点东西的地方</div>
+    </div>
+    <button class="theme-btn" id="themeBtn" aria-label="切换配色">◐</button>
+  </header>
+
+  <nav class="nav">
+    <a href="#list" id="navList" class="active">文章</a>
+    <a href="#archive">归档</a>
+    <a href="#about">关于</a>
+    <a href="#admin">管理</a>
+    <span class="nav-rule"></span>
+    <span class="nav-count" id="postCount">00</span>
+  </nav>
+
+  <main>
+    <!-- ===== 列表 ===== -->
+    <section id="list" class="section">
+      <div class="section-head">
+        <span class="num">01</span>
+        <h2>СТАТЬИ / 文章</h2>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <span class="search-mark">◆</span>
+          <input id="search" type="search" placeholder="搜索标题或正文…" autocomplete="off">
+          <button class="search-clear" id="searchClear" hidden>×</button>
+        </div>
+        <div class="tags" id="tagBar"></div>
+      </div>
+
+      <div id="posts" class="posts"></div>
+      <div class="empty" id="empty" hidden>没有匹配的文章。</div>
+    </section>
+
+    <!-- ===== 文章 ===== -->
+    <section id="article" class="section article-view" hidden>
+      <button class="back" id="backBtn">← 返回列表</button>
+      <div class="article-meta">
+        <span id="artDate"></span>
+        <span class="dot">◆</span>
+        <span id="artRead"></span>
+        <span class="dot">◆</span>
+        <span id="artTags" class="art-tags"></span>
+      </div>
+      <h2 class="article-title" id="artTitle"></h2>
+      <div class="article-layout">
+        <aside class="toc" id="toc" hidden>
+          <div class="toc-label">СОДЕРЖАНИЕ</div>
+          <div class="toc-body" id="tocBody"></div>
+        </aside>
+        <div class="article-body" id="artBody"></div>
+      </div>
+      <div class="postnav" id="postnav"></div>
+    </section>
+
+    <!-- ===== 归档 ===== -->
+    <section id="archive" class="section">
+      <div class="section-head">
+        <span class="num">02</span>
+        <h2>АРХИВ / 归档</h2>
+      </div>
+      <div id="archiveBody" class="archive"></div>
+    </section>
+
+    <!-- ===== 关于 ===== -->
+    <section id="about" class="section">
+      <div class="section-head">
+        <span class="num">03</span>
+        <h2>О СЕБЕ / 关于</h2>
+      </div>
+      <div class="about-grid">
+        <div class="about-block">
+          <div class="block-label">КТО</div>
+          <p id="aboutText"></p>
+        </div>
+        <div class="about-block">
+          <div class="block-label">ЧТО</div>
+          <p id="aboutWhat"></p>
+        </div>
+        <div class="about-block">
+          <div class="block-label">ГДЕ</div>
+          <p id="aboutWhere"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 管理 ===== -->
+    <section id="admin" class="section" hidden>
+      <div class="section-head">
+        <span class="num">04</span>
+        <h2>УПРАВЛЕНИЕ / 管理文章</h2>
+      </div>
+
+      <div id="gate" class="gate">
+        <div class="gate-label">ПРОВЕРКА · 核验</div>
+        <p class="gate-q" id="gateQ">加载中…</p>
+        <form id="gateForm" class="gate-form" autocomplete="off">
+          <input id="gateInput" type="text" placeholder="答案…" autocomplete="off"
+                 autocapitalize="off" autocorrect="off" spellcheck="false">
+          <button type="submit" class="btn">进入</button>
+        </form>
+        <p class="gate-err" id="gateErr" hidden>……不对。</p>
+      </div>
+
+      <div id="panel" class="panel" hidden>
+
+        <!-- 顶部：添加文章 方框条 -->
+        <button class="addbar" id="toggleEditor" type="button">
+          <span class="addbar-plus">＋</span> 添加文章
+        </button>
+
+        <form id="addForm" class="form card" autocomplete="off" hidden>
+          <label>标题<input id="fTitle" required></label>
+          <label>日期<input id="fDate" placeholder="2026.10.19" required></label>
+          <label>标签<input id="fTags" placeholder="随笔, 设计"></label>
+          <label>摘要<input id="fExcerpt" placeholder="列表里显示的一两句话"></label>
+          <label>正文（可写 HTML）<textarea id="fBody" rows="9"></textarea></label>
+          <div class="form-foot">
+            <button type="submit" class="btn">保存</button>
+            <button type="button" class="btn ghost" id="cancelAdd">取消</button>
+          </div>
+        </form>
+
+        <!-- 主体：我的文章 -->
+        <div class="list-head">
+          <span class="list-label">МОИ СТАТЬИ / 我的文章</span>
+          <span class="list-count" id="panelCount"></span>
+        </div>
+
+        <div class="selbar" id="selBar" hidden>
+          <span class="sel-note" id="selCount"></span>
+          <button class="btn tiny" id="pinSel" type="button">置顶</button>
+          <button class="btn tiny ghost" id="unpinSel" type="button">取消置顶</button>
+          <button class="btn tiny danger" id="delSel" type="button">删除</button>
+          <button class="btn tiny ghost" id="clearSel" type="button">清空选择</button>
+        </div>
+
+        <div class="admin-list" id="adminList"></div>
+
+        <!-- 底部：导出 / 恢复 -->
+        <div class="panel-actions">
+          <button class="btn" id="exportBtn" type="button">导出 posts.js</button>
+          <button class="btn ghost" id="resetBtn" type="button">恢复文件版本</button>
+          <button class="btn ghost" id="lockBtn" type="button">退出管理</button>
+        </div>
+        <p class="panel-tip">
+          改动先存在浏览器里。点「导出 posts.js」下载，再用它覆盖
+          <code>DSH/website/posts.js</code>，才算真正写进文件。
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span class="red-block"></span>
+    <span id="footerText">© 2026</span>
+    <span class="footer-mark">◆</span>
+  </footer>
+
+</div>
+
+<button class="totop" id="toTop" hidden aria-label="回到顶部">↑</button>
+
+<script src="posts.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
