@@ -58,6 +58,7 @@
     return m ? `${m[1]}.${pad(+m[2])}.${pad(+m[3])}` : v;
   };
   const byDateDesc = (a, b) => (b.date || "").localeCompare(a.date || "");
+  const DEFAULT_AUTHOR = (typeof SITE !== "undefined" && SITE.defaultAuthor) || "瑞卷";
 
   /* ---------- 状态 ---------- */
   let activeTag = "";
@@ -110,6 +111,7 @@
         </div>
         <div class="post-side">
           <div class="post-date">${p.date || ""}</div>
+          <div class="post-author">${p.author || DEFAULT_AUTHOR}</div>
           <div class="post-tags">${(p.tags || []).map(t =>
             `<span class="mini-tag">${t}</span>`).join("")}</div>
           <div class="post-read">约 ${readMinutes(p.body)} 分钟</div>
@@ -136,6 +138,7 @@
   /* ---------- 打开文章 ---------- */
   function openPost(p) {
     showSection("article");
+    $("#artAuthor").textContent = p.author || DEFAULT_AUTHOR;
     $("#artDate").textContent = p.date || "";
     $("#artRead").textContent = `约 ${readMinutes(p.body)} 分钟`;
     $("#artTags").textContent = (p.tags || []).join(" / ");
@@ -372,6 +375,7 @@
     f.hidden = !f.hidden;
     if (!f.hidden) {
       if (!$("#fDate").value) $("#fDate").value = today();
+      if (!$("#fAuthor").value) $("#fAuthor").value = DEFAULT_AUTHOR;
       $("#fTitle").focus();
     }
   };
@@ -391,6 +395,7 @@
       date: normDate($("#fDate").value) || today(),
       tags: $("#fTags").value.split(/[,，、\s]+/).map(s => s.trim()).filter(Boolean),
       title,
+      author: $("#fAuthor").value.trim() || DEFAULT_AUTHOR,
       excerpt: $("#fExcerpt").value.trim(),
       body: $("#fBody").value,
       pinned: false,

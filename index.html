@@ -68,6 +68,8 @@
     <section id="article" class="section article-view" hidden>
       <button class="back" id="backBtn">← 返回列表</button>
       <div class="article-meta">
+        <span id="artAuthor" class="art-author"></span>
+        <span class="dot">◆</span>
         <span id="artDate"></span>
         <span class="dot">◆</span>
         <span id="artRead"></span>
@@ -145,6 +147,7 @@
           <label>标题<input id="fTitle" required></label>
           <label>日期<input id="fDate" placeholder="2026.10.19" required></label>
           <label>标签<input id="fTags" placeholder="随笔, 设计"></label>
+          <label>作者<input id="fAuthor" placeholder="瑞卷"></label>
           <label>摘要<input id="fExcerpt" placeholder="列表里显示的一两句话"></label>
           <label>正文（可写 HTML）<textarea id="fBody" rows="9"></textarea></label>
           <div class="form-foot">

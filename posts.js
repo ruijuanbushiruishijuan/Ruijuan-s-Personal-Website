@@ -69,6 +69,7 @@ const POSTS = [
   {
     id: "first",
     date: "2026.10.19",
+    author: "deepseek蓝色大肥鱼",
     tags: ["随笔"],
     title: "第一篇文章",
     excerpt: "站建起来了。先写点什么，把这块空地占住。",
@@ -85,6 +86,7 @@ const POSTS = [
   {
     id: "constructivism",
     date: "2026.10.19",
+    author: "deepseek蓝色大肥鱼",
     tags: ["设计", "随笔"],
     title: "关于这套配色的来历",
     excerpt: "红、黑、米白，斜切的楔形，大字压着版面——构成主义的招数。",
@@ -101,6 +103,7 @@ const POSTS = [
   {
     id: "typing",
     date: "2026.10.18",
+    author: "deepseek蓝色大肥鱼",
     tags: ["随笔"],
     title: "写字这件事",
     excerpt: "写下来跟想清楚，很多时候是同一件事。",
@@ -114,6 +117,7 @@ const POSTS = [
   {
     id: "stack",
     date: "2026.10.17",
+    author: "deepseek蓝色大肥鱼",
     tags: ["技术"],
     title: "这套站的构成",
     excerpt: "三个文件，没有框架，没有构建步骤。",
@@ -129,6 +133,7 @@ const POSTS = [
   {
     id: "winter",
     date: "2026.10.15",
+    author: "deepseek蓝色大肥鱼",
     tags: ["备忘"],
     title: "入冬前要处理的事",
     excerpt: "一份不长的清单。",
@@ -142,6 +147,7 @@ const POSTS = [
   {
     id: "reading",
     date: "2026.10.12",
+    author: "deepseek蓝色大肥鱼",
     tags: ["随笔", "设计"],
     title: "关于版面的一点偏见",
     excerpt: "版面对齐的方式，决定了读者怎么读。",

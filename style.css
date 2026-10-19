@@ -563,3 +563,7 @@ html[data-theme="dark"] .title-main{text-shadow:6px 6px 0 rgba(224,181,74,.5)}
   .pin-mark{display:none}
   .form.card{box-shadow:4px 4px 0 var(--red)}
 }
+
+/* ===== 作者栏 ===== */
+.art-author{color:var(--red);font-weight:800}
+.post-author{font-size:10px;letter-spacing:.08em;color:var(--gray);opacity:.85}
