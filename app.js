@@ -175,6 +175,7 @@
 
     window.scrollTo({ top: 0 });
     updateProgress();
+    window.dispatchEvent(new CustomEvent("post:open", { detail: p }));
   }
 
   function mkPn(label, post, cls) {
@@ -190,7 +191,7 @@
 
   /* ---------- 区块切换 ---------- */
   function showSection(name) {
-    ["list", "article", "archive", "about", "account"].forEach(id => {
+    ["list", "article", "archive", "about", "account", "admin"].forEach(id => {
       const el = $("#" + id);
       if (el) el.hidden = (id !== name);
     });
@@ -302,8 +303,31 @@
     renderArchive();
   }
 
+  /* ---------- 赞数回填（供归档按赞排序） ---------- */
+  window.addEventListener("likes:loaded", e => {
+    const map = e.detail || {};
+    posts.forEach(p => { p.likes = map[p.id] || 0; });
+    refresh();
+  });
+
+  /* ---------- 从数据库加载文章 ---------- */
+  async function loadFromDB() {
+    if (!window.ACCOUNT) return null;
+    try {
+      const rows = await window.ACCOUNT.publicApi("/rest/v1/posts?select=*&order=date.desc");
+      if (Array.isArray(rows) && rows.length) {
+        posts = rows.map(r => Object.assign({}, r, { tags: r.tags || [] }));
+        refresh();
+      }
+      return rows;
+    } catch (e) { return null; }
+  }
+  window.RELOAD_POSTS = loadFromDB;
+  window.POSTS = POSTS;
+
   /* ---------- 启动 ---------- */
   refresh();
   showSection("list");
   updateProgress();
+  loadFromDB();
 })();

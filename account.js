@@ -65,7 +65,7 @@
     if (!session) { profile = null; return; }
     try {
       const rows = await api(
-        "/rest/v1/profiles?select=id,username,phone,role&id=eq." + encodeURIComponent(session.user.id),
+        "/rest/v1/profiles?select=id,username,phone,role,status&id=eq." + encodeURIComponent(session.user.id),
         { token: session.access_token }
       );
       profile = (rows && rows[0]) || null;
@@ -87,6 +87,13 @@
     };
     persist();
     await loadProfile();
+    if (profile && profile.status === "banned") {
+      session = null;
+      profile = null;
+      persist();
+      emit();
+      throw new Error("这个账号已被停用，请联系管理员");
+    }
     emit();
   }
 
