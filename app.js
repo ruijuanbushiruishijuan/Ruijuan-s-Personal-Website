@@ -16,7 +16,6 @@
 
   /* ---------- 数据层 ---------- */
   const STORE_KEY = "ruijuan_posts_v1";
-  const OPEN_KEY = "ruijuan_admin_ok";
 
   const ensureIds = arr => {
     arr.forEach((p, i) => { if (!p.id) p.id = "p" + i + Date.now().toString(36); });
@@ -191,22 +190,31 @@
 
   /* ---------- 区块切换 ---------- */
   function showSection(name) {
-    if (name !== "admin") adminOpen = false;   // 一旦离开就上锁
-    ["list", "article", "archive", "about", "admin"].forEach(id => {
+    ["list", "article", "archive", "about", "account"].forEach(id => {
       const el = $("#" + id);
       if (el) el.hidden = (id !== name);
     });
     document.querySelectorAll(".nav a").forEach(a => a.classList.remove("active"));
     const navFor = { list: "#navList", archive: '.nav a[href="#archive"]',
-      about: '.nav a[href="#about"]', admin: '.nav a[href="#admin"]' };
+      about: '.nav a[href="#about"]' };
     const sel = navFor[name];
     if (sel && $(sel)) $(sel).classList.add("active");
     updateProgress();
   }
+  window.SHOW_SECTION = showSection;
 
   $("#backBtn").onclick = () => { showSection("list"); window.scrollTo({ top: 0 }); };
 
   /* ---------- 归档 ---------- */
+  let archSort = "date";
+  const sortRows = rows => {
+    const r = rows.slice();
+    if (archSort === "author")
+      return r.sort((a, b) => (a.author || "").localeCompare(b.author || "") || byDateDesc(a, b));
+    if (archSort === "likes")
+      return r.sort((a, b) => (b.likes || 0) - (a.likes || 0) || byDateDesc(a, b));
+    return r.sort(byDateDesc);
+  };
   function renderArchive() {
     const box = $("#archiveBody");
     box.innerHTML = "";
@@ -217,7 +225,7 @@
       byYear.get(y).push(p);
     });
     [...byYear.keys()].sort().reverse().forEach(y => {
-      const rows = byYear.get(y).slice().sort(byDateDesc);
+      const rows = sortRows(byYear.get(y));
       const sec = document.createElement("div");
       sec.innerHTML = `
         <div class="archive-year"><b>${y}</b><span>${pad(rows.length)} 篇</span></div>
@@ -229,7 +237,7 @@
         r.innerHTML = `
           <div class="archive-date">${(p.date || "").slice(5)}</div>
           <div class="archive-title"></div>
-          <div class="archive-tags">${(p.tags || []).join(" · ")}</div>`;
+          <div class="archive-tags">${p.author || ""}</div>`;
         r.querySelector(".archive-title").textContent = p.title;
         r.onclick = () => openPost(p);
         holder.appendChild(r);
@@ -238,215 +246,13 @@
     });
   }
 
-  /* ================= 管理 ================= */
-  const ADMIN_CFG = (typeof ADMIN !== "undefined" && ADMIN) ? ADMIN : {};
-  const QUESTIONS = Array.isArray(ADMIN_CFG.questions) ? ADMIN_CFG.questions : [];
-  let gateQuestion = null;
-
-  let adminOpen = false;   // 只存内存：刷新、离开管理页都会重新上锁
-  const isOpen = () => adminOpen;
-  const pickQuestion = () => QUESTIONS.length
-    ? QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)]
-    : null;
-
-  function renderGate() {
-    gateQuestion = pickQuestion();
-    const btn = $("#gateForm").querySelector("button");
-    $("#gateErr").hidden = true;
-    $("#gateInput").value = "";
-    if (!gateQuestion) {
-      $("#gateQ").textContent = "还没设置问题：去 posts.js 的 ADMIN.questions 里填一条。";
-      $("#gateInput").disabled = true;
-      btn.disabled = true;
-      return;
-    }
-    $("#gateQ").textContent = gateQuestion.q;
-    $("#gateInput").disabled = false;
-    btn.disabled = false;
-  }
-
-  async function sha256Hex(str) {
-    const buf = new TextEncoder().encode(str);
-    const dig = await crypto.subtle.digest("SHA-256", buf);
-    return [...new Uint8Array(dig)].map(b => b.toString(16).padStart(2, "0")).join("");
-  }
-
-  async function answerOk(q, input) {
-    const v = norm(input);
-    if (Array.isArray(q.h) && q.h.length) {
-      if (!(window.crypto && crypto.subtle)) return false;
-      const hh = await sha256Hex(v);
-      if (q.h.includes(hh)) return true;
-    }
-    return [].concat(q.a == null ? [] : q.a).some(a => norm(a) === v);
-  }
-
-  $("#gateForm").addEventListener("submit", async e => {
-    e.preventDefault();
-    if (!gateQuestion) return;
-    const ok = await answerOk(gateQuestion, $("#gateInput").value);
-    if (ok) {
-      adminOpen = true;
-      $("#gateInput").value = "";
-      renderAdmin();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      $("#gateErr").hidden = false;
-      $("#gateInput").select();
-    }
-  });
-
-  function renderAdmin() {
-    const open = isOpen();
-    $("#gate").hidden = open;
-    $("#panel").hidden = !open;
-    if (open) {
-      updateAdminList();
-      if (!$("#fDate").value) $("#fDate").value = today();
-    } else {
-      $("#addForm").hidden = true;
-      renderGate();
-    }
-  }
-
-  function updateAdminList() {
-    const box = $("#adminList");
-    box.innerHTML = "";
-    $("#panelCount").textContent = `${all.length} 篇`;
-
-    all.forEach(p => {
-      const row = document.createElement("div");
-      row.className = "admin-row" + (p.pinned ? " is-pinned" : "");
-      row.innerHTML = `
-        <input class="rowchk" type="checkbox" aria-label="选择">
-        <div class="admin-meta">
-          <div class="admin-title"></div>
-          <div class="admin-date">${p.date || ""}</div>
-        </div>
-        <span class="pin-mark" ${p.pinned ? "" : "hidden"}>置顶</span>`;
-      row.querySelector(".admin-title").textContent = p.title;
-      const chk = row.querySelector(".rowchk");
-      chk.dataset.id = p.id;
-      chk.onchange = updateSelBar;
-      box.appendChild(row);
-    });
-    updateSelBar();
-  }
-
-  const selectedIds = () =>
-    [...document.querySelectorAll("#adminList .rowchk:checked")].map(c => c.dataset.id);
-
-  function updateSelBar() {
-    const ids = selectedIds();
-    $("#selBar").hidden = ids.length === 0;
-    $("#selCount").textContent = `已选 ${ids.length} 篇`;
-  }
-
-  const clearSel = () => {
-    document.querySelectorAll("#adminList .rowchk").forEach(c => { c.checked = false; });
-    updateSelBar();
-  };
-
-  $("#clearSel").onclick = clearSel;
-
-  $("#pinSel").onclick = () => {
-    const ids = selectedIds();
-    posts.forEach(p => { if (ids.includes(p.id)) p.pinned = true; });
-    savePosts(); refresh(); renderAdmin();
-  };
-
-  $("#unpinSel").onclick = () => {
-    const ids = selectedIds();
-    posts.forEach(p => { if (ids.includes(p.id)) p.pinned = false; });
-    savePosts(); refresh(); renderAdmin();
-  };
-
-  $("#delSel").onclick = () => {
-    const ids = selectedIds();
-    if (!ids.length) return;
-    if (!confirm(`删除选中的 ${ids.length} 篇文章？`)) return;
-    posts = posts.filter(p => !ids.includes(p.id));
-    savePosts(); refresh(); renderAdmin();
-  };
-
-  /* --- 添加文章 --- */
-  $("#toggleEditor").onclick = () => {
-    const f = $("#addForm");
-    f.hidden = !f.hidden;
-    if (!f.hidden) {
-      if (!$("#fDate").value) $("#fDate").value = today();
-      if (!$("#fAuthor").value) $("#fAuthor").value = DEFAULT_AUTHOR;
-      $("#fTitle").focus();
-    }
-  };
-
-  $("#cancelAdd").onclick = () => {
-    $("#addForm").hidden = true;
-    $("#addForm").reset();
-    $("#fDate").value = today();
-  };
-
-  $("#addForm").addEventListener("submit", e => {
-    e.preventDefault();
-    const title = $("#fTitle").value.trim();
-    if (!title) return;
-    const post = {
-      id: "p" + Date.now().toString(36),
-      date: normDate($("#fDate").value) || today(),
-      tags: $("#fTags").value.split(/[,，、\s]+/).map(s => s.trim()).filter(Boolean),
-      title,
-      author: $("#fAuthor").value.trim() || DEFAULT_AUTHOR,
-      excerpt: $("#fExcerpt").value.trim(),
-      body: $("#fBody").value,
-      pinned: false,
+  document.querySelectorAll("#sortBar .tag").forEach(btn => {
+    btn.onclick = () => {
+      archSort = btn.dataset.sort;
+      document.querySelectorAll("#sortBar .tag").forEach(b => b.classList.toggle("on", b === btn));
+      renderArchive();
     };
-    posts.push(post);
-    savePosts(); refresh(); renderAdmin();
-    $("#addForm").reset();
-    $("#fDate").value = today();
-    $("#addForm").hidden = true;
-    window.scrollTo({ top: 0, behavior: "smooth" });
   });
-
-  /* --- 导出 / 恢复 --- */
-  function buildFile() {
-    const adminCfg = (typeof ADMIN !== "undefined" && ADMIN) ? ADMIN : { questions: [] };
-    return [
-      "/* 由「管理文章」面板导出 —— 用它覆盖 /sdcard/DSH/website/posts.js */",
-      "",
-      "const SITE = " + JSON.stringify(SITE, null, 2) + ";",
-      "",
-      "const ADMIN = " + JSON.stringify(adminCfg, null, 2) + ";",
-      "",
-      "const POSTS = " + JSON.stringify(posts, null, 2) + ";",
-      "",
-    ].join("\n");
-  }
-
-  $("#exportBtn").onclick = () => {
-    const blob = new Blob([buildFile()], { type: "application/javascript;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "posts.js";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 3000);
-  };
-
-  $("#resetBtn").onclick = () => {
-    if (!confirm("丢弃浏览器里的改动，恢复成 posts.js 里的内容？")) return;
-    localStorage.removeItem(STORE_KEY);
-    posts = filePosts();
-    refresh(); renderAdmin();
-  };
-
-  $("#lockBtn").onclick = () => {
-    adminOpen = false;
-    renderAdmin();
-    window.scrollTo({ top: 0 });
-  };
 
   /* ---------- 导航 ---------- */
   document.querySelectorAll('.nav a[href^="#"]').forEach(a => {
@@ -455,7 +261,6 @@
       const id = a.getAttribute("href").slice(1);
       showSection(id);
       if (id === "archive") renderArchive();
-      if (id === "admin") renderAdmin();
       window.scrollTo({ top: 0 });
     };
   });

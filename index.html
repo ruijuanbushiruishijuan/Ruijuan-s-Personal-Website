@@ -38,9 +38,9 @@
     <a href="#list" id="navList" class="active">文章</a>
     <a href="#archive">归档</a>
     <a href="#about">关于</a>
-    <a href="#admin">管理</a>
     <span class="nav-rule"></span>
     <span class="nav-count" id="postCount">00</span>
+    <button class="user-chip" id="userChip" type="button">登录</button>
   </nav>
 
   <main>
@@ -93,6 +93,11 @@
         <span class="num">02</span>
         <h2>АРХИВ / 归档</h2>
       </div>
+      <div class="sortbar" id="sortBar">
+        <button type="button" class="tag on" data-sort="date">按时间</button>
+        <button type="button" class="tag" data-sort="author">按作者</button>
+        <button type="button" class="tag" data-sort="likes">按点赞</button>
+      </div>
       <div id="archiveBody" class="archive"></div>
     </section>
 
@@ -118,72 +123,75 @@
       </div>
     </section>
 
-    <!-- ===== 管理 ===== -->
-    <section id="admin" class="section" hidden>
+    <!-- ===== 账号 ===== -->
+    <section id="account" class="section" hidden>
       <div class="section-head">
         <span class="num">04</span>
-        <h2>УПРАВЛЕНИЕ / 管理文章</h2>
+        <h2>АККАУНТ / 账号</h2>
       </div>
 
-      <div id="gate" class="gate">
-        <div class="gate-label">ПРОВЕРКА · 核验</div>
-        <p class="gate-q" id="gateQ">加载中…</p>
-        <form id="gateForm" class="gate-form" autocomplete="off">
-          <input id="gateInput" type="text" placeholder="答案…" autocomplete="off"
-                 autocapitalize="off" autocorrect="off" spellcheck="false">
-          <button type="submit" class="btn">进入</button>
+      <div class="auth-wrap">
+        <div class="auth-tabs" id="authTabs">
+          <button type="button" class="tag on" data-tab="login">登录</button>
+          <button type="button" class="tag" data-tab="signup">注册</button>
+        </div>
+
+        <form class="auth-form" id="loginForm" autocomplete="on">
+          <label class="field">
+            <span>ИМЯ / 用户名</span>
+            <input id="loginUser" type="text" autocomplete="username" required>
+          </label>
+          <label class="field">
+            <span>ПАРОЛЬ / 密码</span>
+            <input id="loginPass" type="password" autocomplete="current-password" required>
+          </label>
+          <button type="submit" class="btn-red">登录</button>
+          <p class="auth-msg" id="loginMsg"></p>
         </form>
-        <p class="gate-err" id="gateErr" hidden>……不对。</p>
-      </div>
 
-      <div id="panel" class="panel" hidden>
+        <form class="auth-form" id="signupForm" hidden>
+          <label class="field">
+            <span>ИМЯ / 用户名</span>
+            <input id="suUser" type="text" maxlength="20" placeholder="2~20 个字" required>
+          </label>
+          <label class="field">
+            <span>ПАРОЛЬ / 密码</span>
+            <input id="suPass" type="password" placeholder="至少 6 位" required>
+          </label>
+          <label class="field">
+            <span>ПОВТОР / 再输一次</span>
+            <input id="suPass2" type="password" required>
+          </label>
+          <label class="field">
+            <span>ТЕЛЕФОН / 电话</span>
+            <input id="suPhone" type="tel" inputmode="numeric" placeholder="仅登记用，不对外显示" required>
+          </label>
+          <button type="submit" class="btn-red">注册</button>
+          <p class="auth-msg" id="signupMsg"></p>
+        </form>
 
-        <!-- 顶部：添加文章 方框条 -->
-        <button class="addbar" id="toggleEditor" type="button">
-          <span class="addbar-plus">＋</span> 添加文章
-        </button>
-
-        <form id="addForm" class="form card" autocomplete="off" hidden>
-          <label>标题<input id="fTitle" required></label>
-          <label>日期<input id="fDate" placeholder="2026.10.19" required></label>
-          <label>标签<input id="fTags" placeholder="随笔, 设计"></label>
-          <label>作者<input id="fAuthor" placeholder="瑞卷"></label>
-          <label>摘要<input id="fExcerpt" placeholder="列表里显示的一两句话"></label>
-          <label>正文（可写 HTML）<textarea id="fBody" rows="9"></textarea></label>
-          <div class="form-foot">
-            <button type="submit" class="btn">保存</button>
-            <button type="button" class="btn ghost" id="cancelAdd">取消</button>
+        <div class="me-panel" id="mePanel" hidden>
+          <div class="me-row">
+            <span class="me-tag">ИМЯ</span>
+            <b id="meName">—</b>
+            <span class="me-role" id="meRole"></span>
           </div>
-        </form>
-
-        <!-- 主体：我的文章 -->
-        <div class="list-head">
-          <span class="list-label">МОИ СТАТЬИ / 我的文章</span>
-          <span class="list-count" id="panelCount"></span>
+          <div class="me-row">
+            <span class="me-tag">ТЕЛ</span>
+            <span id="mePhone">—</span>
+          </div>
+          <form class="me-phone" id="phoneForm">
+            <input id="mePhoneInput" type="tel" inputmode="numeric" placeholder="改电话">
+            <button type="submit" class="tag">保存</button>
+          </form>
+          <p class="auth-msg" id="phoneMsg"></p>
+          <button type="button" class="tag" id="logoutBtn">退出登录</button>
         </div>
 
-        <div class="selbar" id="selBar" hidden>
-          <span class="sel-note" id="selCount"></span>
-          <button class="btn tiny" id="pinSel" type="button">置顶</button>
-          <button class="btn tiny ghost" id="unpinSel" type="button">取消置顶</button>
-          <button class="btn tiny danger" id="delSel" type="button">删除</button>
-          <button class="btn tiny ghost" id="clearSel" type="button">清空选择</button>
-        </div>
-
-        <div class="admin-list" id="adminList"></div>
-
-        <!-- 底部：导出 / 恢复 -->
-        <div class="panel-actions">
-          <button class="btn" id="exportBtn" type="button">导出 posts.js</button>
-          <button class="btn ghost" id="resetBtn" type="button">恢复文件版本</button>
-          <button class="btn ghost" id="lockBtn" type="button">退出管理</button>
-        </div>
-        <p class="panel-tip">
-          改动先存在浏览器里。点「导出 posts.js」下载，再用它覆盖
-          <code>DSH/website/posts.js</code>，才算真正写进文件。
-        </p>
+        <p class="auth-note">注册需要用户名、密码和电话。电话只用来登记，不会公开显示，也不会收到短信。</p>
       </div>
     </section>
+
   </main>
 
   <footer class="footer">
@@ -197,6 +205,7 @@
 <button class="totop" id="toTop" hidden aria-label="回到顶部">↑</button>
 
 <script src="posts.js"></script>
+<script src="account.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
