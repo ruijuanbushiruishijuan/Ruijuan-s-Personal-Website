@@ -323,6 +323,20 @@
     } catch (e) { return null; }
   }
   window.RELOAD_POSTS = loadFromDB;
+
+  /* ---------- 从数据库加载「关于」文字 ---------- */
+  async function loadSiteInfo() {
+    if (!window.ACCOUNT) return;
+    try {
+      const rows = await window.ACCOUNT.publicApi("/rest/v1/site_settings?select=key,value");
+      const map = {};
+      (rows || []).forEach(r => { map[r.key] = r.value; });
+      if (map.about) $("#aboutText").textContent = map.about;
+      if (map.what) $("#aboutWhat").textContent = map.what;
+      if (map.where) $("#aboutWhere").textContent = map.where;
+    } catch (e) {}
+  }
+  window.RELOAD_SITE = loadSiteInfo;
   window.POSTS = POSTS;
 
   /* ---------- 启动 ---------- */
@@ -330,4 +344,5 @@
   showSection("list");
   updateProgress();
   loadFromDB();
+  loadSiteInfo();
 })();

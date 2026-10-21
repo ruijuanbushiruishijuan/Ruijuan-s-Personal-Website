@@ -17,7 +17,7 @@
   /* ---------- 基础请求 ---------- */
   async function api(path, opts) {
     const o = opts || {};
-    const headers = { apikey: CFG.key };
+    const headers = Object.assign({ apikey: CFG.key }, o.headers || {});
     if (o.body) headers["Content-Type"] = "application/json";
     if (o.token) headers.Authorization = "Bearer " + o.token;
     let res;
@@ -316,7 +316,7 @@
     } catch (e) {
       session = null; profile = null;
     }
-    render();
+    emit();
   }
 
   window.ACCOUNT = {

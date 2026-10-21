@@ -67,6 +67,7 @@
         <button type="button" class="tag${tab === "posts" ? " on" : ""}" data-tab="posts">文章</button>
         <button type="button" class="tag${tab === "comments" ? " on" : ""}" data-tab="comments">评论</button>
         <button type="button" class="tag${tab === "users" ? " on" : ""}" data-tab="users">账号</button>
+        <button type="button" class="tag${tab === "about" ? " on" : ""}" data-tab="about">关于页</button>
       </div>
       <div id="adminPane"></div>`;
     box.querySelectorAll("#adminTabs .tag").forEach((b) => {
@@ -74,7 +75,8 @@
     });
     if (tab === "posts") renderPosts();
     else if (tab === "comments") renderComments();
-    else renderUsers();
+    else if (tab === "users") renderUsers();
+    else if (tab === "about") renderAbout();
   }
 
   /* ---------- 文章 ---------- */
@@ -319,6 +321,54 @@
       };
       list.appendChild(d);
     });
+  }
+
+  /* ---------- 关于页 ---------- */
+  async function renderAbout() {
+    const pane = $("#adminPane");
+    pane.innerHTML = '<div id="abWrap" class="post-form"><p class="c-empty">加载中…</p></div>';
+    let map = {};
+    try {
+      const rows = await pub("/rest/v1/site_settings?select=key,value");
+      (rows || []).forEach((r) => { map[r.key] = r.value; });
+    } catch (e) {}
+    $("#abWrap").innerHTML = `
+      <div class="pf-head">关于页的三段文字</div>
+      <label class="field"><span>КТО / 你是谁</span><textarea id="abAbout" rows="4"></textarea></label>
+      <label class="field"><span>ЧТО / 你在做什么</span><textarea id="abWhat" rows="4"></textarea></label>
+      <label class="field"><span>ГДЕ / 在哪找到你</span><textarea id="abWhere" rows="4"></textarea></label>
+      <div class="pf-actions">
+        <button type="button" class="btn-red" id="abSave">保存</button>
+        <span class="comment-as" id="abMsg"></span>
+      </div>`;
+    const def = (k, v) => (map[k] != null && map[k] !== "" ? map[k] : v);
+    $("#abAbout").value = def("about", $("#aboutText").textContent);
+    $("#abWhat").value = def("what", $("#aboutWhat").textContent);
+    $("#abWhere").value = def("where", $("#aboutWhere").textContent);
+    $("#abSave").onclick = async () => {
+      const msg = $("#abMsg");
+      msg.classList.remove("bad");
+      msg.textContent = "保存中…";
+      const items = [
+        ["about", $("#abAbout").value],
+        ["what", $("#abWhat").value],
+        ["where", $("#abWhere").value],
+      ];
+      try {
+        for (const [k, v] of items) {
+          await api("/rest/v1/site_settings?on_conflict=key", {
+            method: "POST",
+            headers: { Prefer: "resolution=merge-duplicates" },
+            body: { key: k, value: v, updated_at: new Date().toISOString() },
+          });
+        }
+        if (window.RELOAD_SITE) await window.RELOAD_SITE();
+        msg.textContent = "已保存";
+      } catch (e) {
+        msg.textContent = "保存失败：" + e.message;
+        msg.classList.add("bad");
+      }
+    };
   }
 
   /* ---------- 启动 ---------- */
