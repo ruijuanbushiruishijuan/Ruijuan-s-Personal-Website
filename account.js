@@ -11,7 +11,9 @@
   const $ = (s) => document.querySelector(s);
 
   let session = null; // { access_token, refresh_token, expires_at, user }
-  let profile = null; // { id, username, phone, role }
+  let profile = null; // { id, username, phone, contact, contact_type, role, status }
+  let ctSignup = "qq";
+  let ctEdit = "qq";
   const listeners = [];
 
   /* ---------- 基础请求 ---------- */
@@ -65,7 +67,7 @@
     if (!session) { profile = null; return; }
     try {
       const rows = await api(
-        "/rest/v1/profiles?select=id,username,phone,role,status&id=eq." + encodeURIComponent(session.user.id),
+        "/rest/v1/profiles?select=id,username,phone,role,status,contact,contact_type&id=eq." + encodeURIComponent(session.user.id),
         { token: session.access_token }
       );
       profile = (rows && rows[0]) || null;
@@ -74,7 +76,7 @@
     }
     if (!profile) {
       const meta = session.user.user_metadata || {};
-      profile = { id: session.user.id, username: meta.username || "我", phone: meta.phone || "", role: "user" };
+      profile = { id: session.user.id, username: meta.username || "我", phone: meta.phone || "", contact: meta.contact || "", contact_type: meta.contact_type || "qq", role: "user" };
     }
   }
 
@@ -97,11 +99,14 @@
     emit();
   }
 
-  async function signUp(username, password, phone) {
+  async function signUp(username, password, contact, ct) {
     const email = await emailFor(username);
     const data = await api("/auth/v1/signup", {
       method: "POST",
-      body: { email, password, data: { username: norm(username), phone: phone.trim() } },
+      body: {
+        email, password,
+        data: { username: norm(username), contact: String(contact).trim(), contact_type: ct || "qq" },
+      },
     });
     if (!data || !data.access_token) throw new Error("注册没拿到登录凭证，请检查后端的「确认邮件」是否已关闭");
     await setSession(data);
@@ -126,12 +131,12 @@
     emit();
   }
 
-  async function savePhone(phone) {
+  async function saveContact(contact, ct) {
     if (!session) throw new Error("还没登录");
     await api("/rest/v1/profiles?id=eq." + encodeURIComponent(session.user.id), {
       method: "PATCH",
       token: session.access_token,
-      body: { phone: phone.trim() },
+      body: { contact: String(contact).trim(), contact_type: ct || "qq" },
     });
     await loadProfile();
     emit();
@@ -178,8 +183,15 @@
     if (tabs) tabs.hidden = logged;
     if (logged && profile) {
       $("#meName").textContent = profile.username;
-      $("#mePhone").textContent = profile.phone ? "电话 " + profile.phone : "电话 未填写";
+      $("#mePhone").textContent = (profile.contact ? (profile.contact_type === "wechat" ? "微信 " : "QQ ") + profile.contact : "未绑定");
       $("#meRole").textContent = profile.role === "admin" ? "管理员" : "普通成员";
+      const c2 = $("#ctSwitch2");
+      if (c2) {
+        c2.querySelectorAll("button").forEach((b) =>
+          b.classList.toggle("on", b.dataset.ct === (profile.contact_type || "qq")));
+      }
+      const mi = $("#mePhoneInput");
+      if (mi && !mi.value) mi.value = profile.contact || "";
     }
   }
 
@@ -239,16 +251,16 @@
         const u = $("#suUser").value.trim();
         const p = $("#suPass").value;
         const p2 = $("#suPass2").value;
-        const tel = $("#suPhone").value.trim();
+        const tel = $("#suContact").value.trim();
         if (u.length < 2 || u.length > 20) return msg($("#signupMsg"), "用户名要 2~20 个字", true);
         if (p.length < 6) return msg($("#signupMsg"), "密码至少 6 位", true);
         if (p !== p2) return msg($("#signupMsg"), "两次密码不一样", true);
-        if (!/^\d{6,20}$/.test(tel)) return msg($("#signupMsg"), "电话填数字就行（6~20 位）", true);
+        if (tel.length < 4) return msg($("#signupMsg"), "填一下 QQ 号或微信号", true);
         const btn = sf.querySelector("button[type=submit]");
         btn.disabled = true;
         msg($("#signupMsg"), "注册中…");
         try {
-          await signUp(u, p, tel);
+          await signUp(u, p, tel, ctSignup);
           msg($("#signupMsg"), "");
           sf.reset();
         } catch (err) {
@@ -273,14 +285,34 @@
       };
     }
 
+    const cs = $("#ctSwitch");
+    if (cs) {
+      cs.querySelectorAll("button").forEach((b) => {
+        b.onclick = () => {
+          ctSignup = b.dataset.ct;
+          cs.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+          $("#suContact").placeholder = ctSignup === "wechat" ? "微信号" : "QQ 号";
+        };
+      });
+    }
+    const cs2 = $("#ctSwitch2");
+    if (cs2) {
+      cs2.querySelectorAll("button").forEach((b) => {
+        b.onclick = () => {
+          ctEdit = b.dataset.ct;
+          cs2.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+        };
+      });
+    }
+
     const pf = $("#phoneForm");
     if (pf) {
       pf.onsubmit = async (e) => {
         e.preventDefault();
         const tel = $("#mePhoneInput").value.trim();
-        if (!/^\d{6,20}$/.test(tel)) return msg($("#phoneMsg"), "电话填数字就行（6~20 位）", true);
+        if (tel.length < 4) return msg($("#phoneMsg"), "填一下 QQ 号或微信号", true);
         try {
-          await savePhone(tel);
+          await saveContact(tel, ctEdit);
           msg($("#phoneMsg"), "已保存");
         } catch (err) {
           msg($("#phoneMsg"), err.message, true);
@@ -322,7 +354,7 @@
   window.ACCOUNT = {
     state,
     onChange: (fn) => { listeners.push(fn); try { fn(state()); } catch (e) {} },
-    signIn, signUp, signOut, savePhone,
+    signIn, signUp, signOut, saveContact,
     api: (path, o) => api(path, Object.assign({}, o, { token: session ? session.access_token : undefined })),
     publicApi: (path, o) => api(path, o),
   };

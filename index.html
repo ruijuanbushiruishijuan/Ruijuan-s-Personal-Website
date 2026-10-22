@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#EDE5D3">
 <title>个人博客</title>
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
 
@@ -156,6 +156,12 @@
       </div>
 
       <div class="auth-wrap">
+        <div class="auth-banner" aria-hidden="true">
+          <span class="ab-stripe"></span>
+          <span class="ab-word">ВХОД</span>
+          <span class="ab-num">04</span>
+        </div>
+
         <div class="auth-tabs" id="authTabs">
           <button type="button" class="tag on" data-tab="login">登录</button>
           <button type="button" class="tag" data-tab="signup">注册</button>
@@ -170,7 +176,7 @@
             <span>ПАРОЛЬ / 密码</span>
             <input id="loginPass" type="password" autocomplete="current-password" required>
           </label>
-          <button type="submit" class="btn-red">登录</button>
+          <button type="submit" class="btn-red btn-wide">登录</button>
           <p class="auth-msg" id="loginMsg"></p>
         </form>
 
@@ -187,11 +193,17 @@
             <span>ПОВТОР / 再输一次</span>
             <input id="suPass2" type="password" required>
           </label>
-          <label class="field">
-            <span>ТЕЛЕФОН / 电话</span>
-            <input id="suPhone" type="tel" inputmode="numeric" placeholder="仅登记用，不对外显示" required>
-          </label>
-          <button type="submit" class="btn-red">注册</button>
+          <div class="field">
+            <span>СВЯЗЬ / 绑定账号</span>
+            <div class="contact-row">
+              <div class="ct-switch" id="ctSwitch">
+                <button type="button" class="on" data-ct="qq">QQ</button>
+                <button type="button" data-ct="wechat">微信</button>
+              </div>
+              <input id="suContact" type="text" inputmode="text" placeholder="号码" required>
+            </div>
+          </div>
+          <button type="submit" class="btn-red btn-wide">注册</button>
           <p class="auth-msg" id="signupMsg"></p>
         </form>
 
@@ -202,18 +214,22 @@
             <span class="me-role" id="meRole"></span>
           </div>
           <div class="me-row">
-            <span class="me-tag">ТЕЛ</span>
+            <span class="me-tag">СВЯЗЬ</span>
             <span id="mePhone">—</span>
           </div>
           <form class="me-phone" id="phoneForm">
-            <input id="mePhoneInput" type="tel" inputmode="numeric" placeholder="改电话">
+            <div class="ct-switch" id="ctSwitch2">
+              <button type="button" class="on" data-ct="qq">QQ</button>
+              <button type="button" data-ct="wechat">微信</button>
+            </div>
+            <input id="mePhoneInput" type="text" placeholder="改绑">
             <button type="submit" class="tag">保存</button>
           </form>
           <p class="auth-msg" id="phoneMsg"></p>
           <button type="button" class="tag" id="logoutBtn">退出登录</button>
         </div>
 
-        <p class="auth-note">注册需要用户名、密码和电话。电话只用来登记，不会公开显示，也不会收到短信。</p>
+        <p class="auth-note">注册需绑定 QQ 或微信其中一方，用于保障数据安全。仅站长可见，不会公开展示。</p>
       </div>
     </section>
 
@@ -286,11 +302,11 @@
 </div>
 
 
-<script src="posts.js?v=6"></script>
-<script src="account.js?v=6"></script>
-<script src="social.js?v=6"></script>
-<script src="tools.js?v=6"></script>
-<script src="admin.js?v=6"></script>
-<script src="app.js?v=6"></script>
+<script src="posts.js?v=7"></script>
+<script src="account.js?v=7"></script>
+<script src="social.js?v=7"></script>
+<script src="tools.js?v=7"></script>
+<script src="admin.js?v=7"></script>
+<script src="app.js?v=7"></script>
 </body>
 </html>

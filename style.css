@@ -749,3 +749,39 @@ html[data-theme="dark"] .title-main{text-shadow:6px 6px 0 rgba(224,181,74,.5)}
 .like-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--hair)}
 .like-row b{font-size:13.5px;letter-spacing:.04em}
 .like-row span{margin-left:auto;font-size:11px;color:var(--gray)}
+
+/* ===== 账号页：先锋主义重制 ===== */
+.auth-banner{
+  position:relative;height:104px;margin-bottom:26px;border:3px solid var(--ink);
+  overflow:hidden;background:transparent;
+}
+.ab-stripe{
+  position:absolute;left:-10%;top:-30%;width:44%;height:170%;
+  background:var(--red);transform:rotate(17deg);
+}
+.ab-word{
+  position:absolute;left:16px;bottom:2px;
+  font-family:"Impact","Arial Black",sans-serif;font-size:46px;line-height:1;
+  letter-spacing:.04em;color:var(--ink);
+  text-shadow:4px 4px 0 var(--yellow);
+  -webkit-text-stroke:1.5px var(--ink);
+}
+.ab-num{
+  position:absolute;right:10px;top:-6px;
+  font-family:"Impact","Arial Black",sans-serif;font-size:74px;line-height:1;
+  color:transparent;-webkit-text-stroke:2px var(--blue);opacity:.55;
+}
+.auth-tabs .tag{padding:8px 18px;font-size:12px}
+.btn-wide{width:100%;padding:15px;letter-spacing:.3em;font-size:12.5px}
+
+.field .contact-row{display:flex;gap:8px;align-items:stretch}
+.ct-switch{display:flex;border:2px solid var(--ink);flex:0 0 auto;overflow:hidden}
+.ct-switch button{
+  border:none;background:transparent;color:var(--ink);font-family:inherit;
+  font-size:11px;letter-spacing:.14em;font-weight:800;padding:0 13px;cursor:pointer;
+  transition:background .16s,color .16s;
+}
+.ct-switch button:hover{background:var(--yellow)}
+.ct-switch button.on{background:var(--ink);color:var(--paper)}
+.contact-row input{flex:1;min-width:0}
+.me-phone .ct-switch{flex:0 0 auto}

@@ -277,7 +277,7 @@
     pane.innerHTML = '<div class="admin-list" id="usList"><p class="c-empty">加载中…</p></div>';
     let rows = [];
     try {
-      rows = await api("/rest/v1/profiles?select=id,username,phone,role,status,created_at&order=created_at");
+      rows = await api("/rest/v1/profiles?select=id,username,phone,contact,contact_type,role,status,created_at&order=created_at");
     } catch (e) {}
     const list = $("#usList");
     if (!rows || !rows.length) { list.innerHTML = '<p class="c-empty">没有账号。</p>'; return; }
@@ -291,7 +291,7 @@
       d.innerHTML = `
         <div class="ar-main">
           <b class="ar-title"></b>
-          <span class="ar-sub">${u.phone || "无电话"} · ${fmt(u.created_at)}</span>
+          <span class="ar-sub">${u.contact ? (u.contact_type === "wechat" ? "微信 " : "QQ ") + u.contact : (u.phone || "未绑定")} · ${fmt(u.created_at)}</span>
         </div>
         <div class="ar-btns">
           <span class="role-chip${admin ? " on" : ""}${banned ? " off" : ""}">${banned ? "已停用" : admin ? "管理员" : "成员"}</span>
