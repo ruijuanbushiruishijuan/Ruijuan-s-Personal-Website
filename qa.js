@@ -72,7 +72,7 @@
     try {
       await auth("/rest/v1/questions", { method: "POST", body: { user_id: st.user.id, body } });
       ta.value = "";
-      msg("发出去了，只有站长知道是你问的 ✧");
+      msg("发出去了 ✧");
       await load();
       refreshQuota();
     } catch (err) {
@@ -100,7 +100,7 @@
       who.textContent = left > 0 ? "今天还能问 " + left + " 个（每天 2 个）" : "今天的问题用完了，明天再来";
       if (btn) btn.disabled = left <= 0;
     } catch (e) {
-      who.textContent = "以「" + (st.profile ? st.profile.username : "我") + "」的身份提问（页面上显示匿名）";
+      who.textContent = "登录后可以提问";
     }
   }
 

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#EDE5D3">
 <title>个人博客</title>
-<link rel="stylesheet" href="style.css?v=10">
+<link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
 
@@ -35,15 +35,19 @@
   </header>
 
   <nav class="nav">
-    <a href="#list" id="navList" class="active">文章</a>
-    <a href="#archive">归档</a>
-    <a href="#about">关于</a>
-    <a href="#qa">问答</a>
-    <a href="#tools">工具</a>
-    <a href="#" id="navMusic" target="_blank" rel="noopener" hidden>音乐</a>
+    <div class="nav-links" id="navLinks">
+      <a href="#list" id="navList" class="active">文章</a>
+      <a href="#archive">归档</a>
+      <a href="#about">关于</a>
+      <a href="#qa">问答</a>
+      <a href="#tools">工具</a>
+      <a href="#" id="navMusic" target="_blank" rel="noopener" hidden>音乐</a>
+    </div>
+
     <span class="nav-rule"></span>
     <span class="nav-count" id="postCount">00</span>
     <button class="user-chip" id="userChip" type="button">登录</button>
+
   </nav>
 
   <main>
@@ -156,7 +160,7 @@
         <h2>ВОПРОС / 问答</h2>
       </div>
 
-      <p class="qa-intro">有什么想问的都可以写在这儿。页面上<strong>永远只显示“匿名”</strong>——只有站长知道是谁问的，用来防止乱问，不会公开。</p>
+      <p class="qa-intro">有什么想问的都可以写在这里，匿名问答。</p>
 
       <form class="qa-form" id="qaForm">
         <textarea id="qaInput" rows="3" maxlength="1000" placeholder="写下你的问题…"></textarea>
@@ -324,12 +328,12 @@
 </div>
 
 
-<script src="posts.js?v=10"></script>
-<script src="account.js?v=10"></script>
-<script src="social.js?v=10"></script>
-<script src="tools.js?v=10"></script>
-<script src="qa.js?v=10"></script>
-<script src="admin.js?v=10"></script>
-<script src="app.js?v=10"></script>
+<script src="posts.js?v=11"></script>
+<script src="account.js?v=11"></script>
+<script src="social.js?v=11"></script>
+<script src="tools.js?v=11"></script>
+<script src="qa.js?v=11"></script>
+<script src="admin.js?v=11"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>

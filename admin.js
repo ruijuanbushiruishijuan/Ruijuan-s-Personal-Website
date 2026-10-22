@@ -45,8 +45,8 @@
           window.scrollTo({ top: 0 });
           render();
         };
-        const rule = nav.querySelector(".nav-rule");
-        nav.insertBefore(a, rule || nav.querySelector(".user-chip"));
+        const holder = nav.querySelector(".nav-links") || nav;
+        holder.appendChild(a);
       }
     } else if (a) {
       a.remove();

@@ -199,7 +199,10 @@
     const navFor = { list: "#navList", archive: '.nav a[href="#archive"]',
       about: '.nav a[href="#about"]' };
     const sel = navFor[name];
-    if (sel && $(sel)) $(sel).classList.add("active");
+    if (sel && $(sel)) {
+      $(sel).classList.add("active");
+      try { $(sel).scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); } catch (e) {}
+    }
     updateProgress();
   }
   window.SHOW_SECTION = showSection;
