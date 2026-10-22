@@ -67,6 +67,7 @@
         <button type="button" class="tag${tab === "posts" ? " on" : ""}" data-tab="posts">文章</button>
         <button type="button" class="tag${tab === "comments" ? " on" : ""}" data-tab="comments">评论</button>
         <button type="button" class="tag${tab === "users" ? " on" : ""}" data-tab="users">账号</button>
+        <button type="button" class="tag${tab === "works" ? " on" : ""}" data-tab="works">作品</button>
         <button type="button" class="tag${tab === "qa" ? " on" : ""}" data-tab="qa">问答</button>
         <button type="button" class="tag${tab === "about" ? " on" : ""}" data-tab="about">关于页</button>
       </div>
@@ -77,6 +78,7 @@
     if (tab === "posts") renderPosts();
     else if (tab === "comments") renderComments();
     else if (tab === "users") renderUsers();
+    else if (tab === "works") renderWorks();
     else if (tab === "qa") renderQa();
     else if (tab === "about") renderAbout();
   }
@@ -323,6 +325,113 @@
       };
       list.appendChild(d);
     });
+  }
+
+  /* ---------- 作品集 ---------- */
+  function compressImage(file, maxEdge, quality) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        let w = img.naturalWidth;
+        let h = img.naturalHeight;
+        const scale = Math.min(1, maxEdge / Math.max(w, h));
+        w = Math.max(1, Math.round(w * scale));
+        h = Math.max(1, Math.round(h * scale));
+        const c = document.createElement("canvas");
+        c.width = w;
+        c.height = h;
+        const ctx = c.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+        c.toBlob((blob) => {
+          URL.revokeObjectURL(url);
+          if (blob) resolve({ blob, w, h });
+          else reject(new Error("压缩失败"));
+        }, "image/jpeg", quality);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error("这张图读不了"));
+      };
+      img.src = url;
+    });
+  }
+
+  async function renderWorks() {
+    const pane = $("#adminPane");
+    pane.innerHTML =
+      '<div class="admin-bar">' +
+      '<label class="tag upload-btn">+ 上传图片<input type="file" id="wkFile" accept="image/*" multiple hidden></label>' +
+      '<span class="comment-as" id="wkMsg">自动压到长边 2000px，省空间</span>' +
+      '</div>' +
+      '<div class="works-admin" id="wkList"><p class="c-empty">加载中…</p></div>';
+    $("#wkFile").onchange = (e) => uploadPicked(e.target.files);
+    await reloadWorks();
+  }
+
+  async function reloadWorks() {
+    const list = $("#wkList");
+    if (!list) return;
+    let rows = [];
+    try { rows = await api("/rest/v1/works?select=*&order=created_at.desc&limit=200"); } catch (e) {}
+    if (!rows || !rows.length) {
+      list.innerHTML = '<p class="c-empty">还没有作品。</p>';
+      return;
+    }
+    list.innerHTML = "";
+    rows.forEach((w) => {
+      const d = document.createElement("div");
+      d.className = "wk-row";
+      d.innerHTML =
+        '<img class="wk-thumb" alt="">' +
+        '<div class="wk-main"><b class="wk-title"></b><span class="wk-sub"></span></div>' +
+        '<button type="button" class="tag danger" data-act="del">删除</button>';
+      const im = d.querySelector(".wk-thumb");
+      im.src = window.ACCOUNT.imageUrl(w.path);
+      d.querySelector(".wk-title").textContent = w.title || "(无标题)";
+      d.querySelector(".wk-sub").textContent =
+        (w.width && w.height ? w.width + "×" + w.height + " · " : "") + fmt(w.created_at);
+      d.querySelector('[data-act="del"]').onclick = async () => {
+        if (!confirm("删除这张作品？")) return;
+        try {
+          await api("/rest/v1/works?id=eq." + enc(w.id), { method: "DELETE" });
+          await window.ACCOUNT.removeObject("works/" + w.path);
+          await reloadWorks();
+          if (window.WORKS_LOAD) window.WORKS_LOAD();
+        } catch (e) { alert("删不掉：" + e.message); }
+      };
+      list.appendChild(d);
+    });
+  }
+
+  async function uploadPicked(files) {
+    const msg = $("#wkMsg");
+    const arr = Array.from(files || []);
+    if (!arr.length) return;
+    let ok = 0;
+    for (let i = 0; i < arr.length; i++) {
+      msg.classList.remove("bad");
+      msg.textContent = "处理中 " + (i + 1) + "/" + arr.length + "…";
+      try {
+        const { blob, w, h } = await compressImage(arr[i], 2000, 0.85);
+        const name = "w" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + ".jpg";
+        await window.ACCOUNT.uploadObject("works/" + name, blob, "image/jpeg");
+        const title = String(arr[i].name || "").replace(/\.[^.]+$/, "").slice(0, 40);
+        await api("/rest/v1/works", {
+          method: "POST",
+          body: { title, path: name, width: w, height: h },
+        });
+        ok++;
+      } catch (e) {
+        msg.textContent = "出错：" + e.message;
+        msg.classList.add("bad");
+      }
+    }
+    if (ok) msg.textContent = "上传了 " + ok + " 张";
+    const inp = $("#wkFile");
+    if (inp) inp.value = "";
+    await reloadWorks();
+    if (window.WORKS_LOAD) window.WORKS_LOAD();
   }
 
   /* ---------- 问答 ---------- */

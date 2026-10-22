@@ -844,11 +844,11 @@ html[data-theme="dark"] .title-main{text-shadow:6px 6px 0 rgba(224,181,74,.5)}
 /* ===== 角落装饰（低透明度，右下角） ===== */
 .section{position:relative}
 .deco{
-  position:absolute;right:-6px;bottom:-6px;
+  position:absolute;right:-6px;top:-6px;
   width:min(44vw,210px);height:min(44vw,210px);
   pointer-events:none;z-index:0;opacity:.13;
-  -webkit-mask-image:radial-gradient(circle at 100% 100%, #000 0 52%, transparent 74%);
-  mask-image:radial-gradient(circle at 100% 100%, #000 0 52%, transparent 74%);
+  -webkit-mask-image:radial-gradient(circle at 100% 0%, #000 0 52%, transparent 74%);
+  mask-image:radial-gradient(circle at 100% 0%, #000 0 52%, transparent 74%);
 }
 html[data-theme="dark"] .deco{opacity:.22}
 
@@ -877,12 +877,12 @@ html[data-theme="dark"] .deco{opacity:.22}
 /* 问答：扇形 + 点 */
 .d-qa{
   background:
-    conic-gradient(from 190deg at 82% 82%, var(--red) 0 26%, transparent 26% 100%),
+    conic-gradient(from 100deg at 82% 18%, var(--red) 0 26%, transparent 26% 100%),
     radial-gradient(circle at 26% 26%, var(--ink) 0 10%, transparent 11%);
 }
 /* 工具：同心圆 */
 .d-tools{
-  background: repeating-radial-gradient(circle at 100% 100%, transparent 0 13px, var(--blue) 13px 15px);
+  background: repeating-radial-gradient(circle at 100% 0%, transparent 0 13px, var(--blue) 13px 15px);
 }
 /* 账号：细斜带 */
 .d-account{
@@ -895,3 +895,59 @@ html[data-theme="dark"] .deco{opacity:.22}
     linear-gradient(var(--ink), var(--ink)) 50% 50% / 100% 2px no-repeat,
     radial-gradient(circle at 50% 50%, var(--red) 0 16%, transparent 17%);
 }
+
+/* ===== 作品集 ===== */
+.works-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;
+}
+.work{
+  margin:0;border:2px solid var(--ink);background:transparent;cursor:pointer;
+  position:relative;overflow:hidden;transition:transform .14s,box-shadow .14s;
+}
+.work img{display:block;width:100%;height:150px;object-fit:cover;filter:saturate(.95)}
+.work:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--red)}
+.work figcaption{
+  font-size:10.5px;letter-spacing:.06em;padding:6px 8px;border-top:2px solid var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);
+}
+.d-works{
+  background:
+    radial-gradient(circle at 30% 70%, var(--yellow) 0 24%, transparent 25%),
+    repeating-linear-gradient(90deg, var(--blue) 0 2px, transparent 2px 26px);
+}
+
+/* 大图查看 */
+.img-modal{z-index:70;padding:16px}
+.img-box{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  width:100%;max-width:560px;
+}
+#imgBig{
+  max-width:100%;max-height:76vh;display:block;border:3px solid var(--ink);
+  box-shadow:8px 8px 0 var(--red);background:#000;
+}
+.img-nav{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:2;
+  width:38px;height:56px;border:2px solid var(--ink);background:var(--paper);
+  color:var(--ink);font-size:26px;line-height:1;cursor:pointer;font-family:inherit;
+}
+.img-prev{left:-2px}
+.img-next{right:-2px}
+.img-nav:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.img-cap{
+  position:absolute;left:0;right:0;bottom:-30px;text-align:center;
+  font-size:11.5px;letter-spacing:.08em;color:var(--paper);
+}
+.img-x{
+  position:absolute;top:-14px;right:-10px;z-index:3;width:34px;height:34px;
+  background:var(--paper);border:2px solid var(--ink);line-height:28px;font-size:20px;
+}
+
+/* 后台作品管理 */
+.upload-btn{display:inline-flex;align-items:center;cursor:pointer}
+.works-admin{display:flex;flex-direction:column}
+.wk-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--hair)}
+.wk-thumb{width:64px;height:64px;object-fit:cover;border:2px solid var(--ink);flex:0 0 auto}
+.wk-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.wk-title{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wk-sub{font-size:11px;color:var(--gray)}

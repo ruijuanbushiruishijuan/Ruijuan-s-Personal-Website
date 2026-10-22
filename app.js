@@ -191,7 +191,7 @@
 
   /* ---------- 区块切换 ---------- */
   function showSection(name) {
-    ["list", "article", "archive", "about", "qa", "tools", "account", "admin"].forEach(id => {
+    ["list", "article", "works", "archive", "about", "qa", "tools", "account", "admin"].forEach(id => {
       const el = $("#" + id);
       if (el) el.hidden = (id !== name);
     });

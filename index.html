@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#EDE5D3">
 <title>个人博客</title>
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
 
@@ -37,6 +37,7 @@
   <nav class="nav">
     <div class="nav-links" id="navLinks">
       <a href="#list" id="navList" class="active">文章</a>
+      <a href="#works">作品</a>
       <a href="#archive">归档</a>
       <a href="#about">关于</a>
       <a href="#qa">问答</a>
@@ -119,11 +120,21 @@
 
     </section>
 
+    <!-- ===== 作品集 ===== -->
+    <section id="works" class="section" hidden>
+      <div class="deco d-works" aria-hidden="true"></div>
+      <div class="section-head">
+        <span class="num">02</span>
+        <h2>РАБОТЫ / 作品</h2>
+      </div>
+      <div class="works-grid" id="worksGrid"></div>
+    </section>
+
     <!-- ===== 归档 ===== -->
     <section id="archive" class="section">
       <div class="deco d-archive" aria-hidden="true"></div>
       <div class="section-head">
-        <span class="num">02</span>
+        <span class="num">03</span>
         <h2>АРХИВ / 归档</h2>
       </div>
       <div class="sortbar" id="sortBar">
@@ -138,7 +149,7 @@
     <section id="about" class="section">
       <div class="deco d-about" aria-hidden="true"></div>
       <div class="section-head">
-        <span class="num">03</span>
+        <span class="num">04</span>
         <h2>О СЕБЕ / 关于</h2>
       </div>
       <div class="about-grid">
@@ -161,7 +172,7 @@
     <section id="qa" class="section" hidden>
       <div class="deco d-qa" aria-hidden="true"></div>
       <div class="section-head">
-        <span class="num">04</span>
+        <span class="num">05</span>
         <h2>ВОПРОС / 问答</h2>
       </div>
 
@@ -183,7 +194,7 @@
     <section id="account" class="section" hidden>
       <div class="deco d-account" aria-hidden="true"></div>
       <div class="section-head">
-        <span class="num">05</span>
+        <span class="num">06</span>
         <h2>АККАУНТ / 账号</h2>
       </div>
 
@@ -269,7 +280,7 @@
     <section id="tools" class="section" hidden>
       <div class="deco d-tools" aria-hidden="true"></div>
       <div class="section-head">
-        <span class="num">06</span>
+        <span class="num">07</span>
         <h2>ИНСТРУМЕНТЫ / 工具</h2>
       </div>
 
@@ -308,7 +319,7 @@
     <section id="admin" class="section" hidden>
       <div class="deco d-admin" aria-hidden="true"></div>
       <div class="section-head">
-        <span class="num">07</span>
+        <span class="num">08</span>
         <h2>АДМИН / 后台</h2>
       </div>
       <div id="adminBody" class="admin-body"></div>
@@ -325,6 +336,15 @@
 </div>
 
 <button class="totop" id="toTop" hidden aria-label="回到顶部">↑</button>
+<div class="modal img-modal" id="imgModal" hidden>
+  <div class="img-box">
+    <button type="button" class="img-nav img-prev" id="imgPrev">‹</button>
+    <img id="imgBig" alt="作品">
+    <button type="button" class="img-nav img-next" id="imgNext">›</button>
+    <div class="img-cap" id="imgCap"></div>
+    <button type="button" class="modal-x img-x" id="imgClose">×</button>
+  </div>
+</div>
 <div class="modal" id="likeModal" hidden>
   <div class="modal-box">
     <div class="modal-head">
@@ -336,12 +356,13 @@
 </div>
 
 
-<script src="posts.js?v=12"></script>
-<script src="account.js?v=12"></script>
-<script src="social.js?v=12"></script>
-<script src="tools.js?v=12"></script>
-<script src="qa.js?v=12"></script>
-<script src="admin.js?v=12"></script>
-<script src="app.js?v=12"></script>
+<script src="posts.js?v=14"></script>
+<script src="account.js?v=14"></script>
+<script src="social.js?v=14"></script>
+<script src="tools.js?v=14"></script>
+<script src="qa.js?v=14"></script>
+<script src="works.js?v=14"></script>
+<script src="admin.js?v=14"></script>
+<script src="app.js?v=14"></script>
 </body>
 </html>

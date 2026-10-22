@@ -142,6 +142,38 @@
     emit();
   }
 
+  async function uploadObject(path, blob, type) {
+    if (!session) throw new Error("还没登录");
+    const res = await fetch(CFG.url + "/storage/v1/object/" + path, {
+      method: "POST",
+      headers: {
+        apikey: CFG.key,
+        Authorization: "Bearer " + session.access_token,
+        "Content-Type": type || "application/octet-stream",
+        "x-upsert": "true",
+      },
+      body: blob,
+    });
+    if (!res.ok) {
+      let t = "";
+      try { t = await res.text(); } catch (e) {}
+      throw new Error(!t ? "上传失败 " + res.status : t.slice(0, 140));
+    }
+    return CFG.url + "/storage/v1/object/public/" + path;
+  }
+
+  async function removeObject(path) {
+    if (!session) return;
+    try {
+      await fetch(CFG.url + "/storage/v1/object/" + path, {
+        method: "DELETE",
+        headers: { apikey: CFG.key, Authorization: "Bearer " + session.access_token },
+      });
+    } catch (e) {}
+  }
+
+  const imageUrl = (p) => CFG.url + "/storage/v1/object/public/works/" + p;
+
   /* ---------- 状态广播 ---------- */
   function emit() {
     render();
@@ -354,7 +386,7 @@
   window.ACCOUNT = {
     state,
     onChange: (fn) => { listeners.push(fn); try { fn(state()); } catch (e) {} },
-    signIn, signUp, signOut, saveContact,
+    signIn, signUp, signOut, saveContact, uploadObject, removeObject, imageUrl,
     api: (path, o) => api(path, Object.assign({}, o, { token: session ? session.access_token : undefined })),
     publicApi: (path, o) => api(path, o),
   };
