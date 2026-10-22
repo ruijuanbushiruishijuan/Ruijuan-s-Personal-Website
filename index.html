@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#EDE5D3">
 <title>个人博客</title>
-<link rel="stylesheet" href="style.css?v=15">
+<link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
 
@@ -311,7 +311,12 @@
           <button type="button" class="tag noise-btn" data-noise="white">白噪</button>
           <button type="button" class="tag" id="noiseStop">静音</button>
         </div>
-        <p class="tool-hint">声音由浏览器实时合成，不加载任何音频文件；切走页面会自动停。</p>
+        <div class="noise-vol">
+          <span>音量</span>
+          <input type="range" id="noiseVol" min="0" max="100" value="60">
+        </div>
+        <p class="tool-hint" id="noiseHint"></p>
+        <p class="tool-hint">录音来自公开音效库，切走页面会自动停。</p>
       </div>
     </section>
 
@@ -356,13 +361,13 @@
 </div>
 
 
-<script src="posts.js?v=15"></script>
-<script src="account.js?v=15"></script>
-<script src="social.js?v=15"></script>
-<script src="tools.js?v=15"></script>
-<script src="qa.js?v=15"></script>
-<script src="works.js?v=15"></script>
-<script src="admin.js?v=15"></script>
-<script src="app.js?v=15"></script>
+<script src="posts.js?v=16"></script>
+<script src="account.js?v=16"></script>
+<script src="social.js?v=16"></script>
+<script src="tools.js?v=16"></script>
+<script src="qa.js?v=16"></script>
+<script src="works.js?v=16"></script>
+<script src="admin.js?v=16"></script>
+<script src="app.js?v=16"></script>
 </body>
 </html>

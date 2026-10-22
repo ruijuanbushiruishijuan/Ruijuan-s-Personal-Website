@@ -1,4 +1,4 @@
-/* 工具页：番茄钟 + 白噪音 */
+/* 工具页：番茄钟 + 白噪音（真实录音） */
 (function () {
   const $ = (s) => document.querySelector(s);
 
@@ -18,7 +18,6 @@
     if (c) c.textContent = String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
     const b = barEl();
     if (b) b.style.width = (total ? ((total - left) / total) * 100 : 0) + "%";
-    document.title = tick ? (String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0") + " · 瑞卷") : null;
     if (tick) document.title = String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0") + " · 瑞卷";
   };
 
@@ -58,6 +57,7 @@
   function beep() {
     try {
       const ac = window.__noiseCtx || new (window.AudioContext || window.webkitAudioContext)();
+      window.__noiseCtx = ac;
       const o = ac.createOscillator();
       const g = ac.createGain();
       o.type = "sine";
@@ -73,118 +73,99 @@
   }
 
   /* ================= 白噪音 ================= */
-  let ac = null;
-  let nodes = [];
+  const TRACKS = { rain: "雨声", fire: "篝火", cafe: "咖啡馆", wave: "海浪" };
+  let audio = null;
   let playing = "";
+  let whiteCtx = null;
+  let whiteSrc = null;
 
-  const ensureAC = () => {
-    if (!ac) {
-      ac = new (window.AudioContext || window.webkitAudioContext)();
-      window.__noiseCtx = ac;
-    }
-    if (ac.state === "suspended") ac.resume();
-    return ac;
+  const volume = () => {
+    const v = $("#noiseVol");
+    return v ? Number(v.value) / 100 : 0.6;
   };
 
-  function noiseBuffer(ctx, kind, seconds) {
-    const len = Math.floor(ctx.sampleRate * seconds);
-    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-    const d = buf.getChannelData(0);
-    let last = 0;
-    for (let i = 0; i < len; i++) {
-      const white = Math.random() * 2 - 1;
-      if (kind === "white") {
-        d[i] = white * 0.5;
-      } else {
-        last = (last + 0.018 * white) / 1.018;
-        d[i] = last * 4;
-      }
-    }
-    return buf;
-  }
+  const markOn = (kind) => {
+    document.querySelectorAll(".noise-btn").forEach((b) => {
+      b.classList.toggle("on", b.dataset.noise === kind);
+    });
+  };
 
-  function stopAll() {
-    nodes.forEach((n) => { try { n.stop && n.stop(); n.disconnect && n.disconnect(); } catch (e) {} });
-    nodes = [];
+  const setHint = (t, bad) => {
+    const el = $("#noiseHint");
+    if (!el) return;
+    el.textContent = t || "";
+    el.classList.toggle("bad", !!bad);
+  };
+
+  const stopWhite = () => {
+    if (whiteSrc) { try { whiteSrc.stop(); } catch (e) {} whiteSrc = null; }
+  };
+
+  const stopAll = () => {
+    if (audio) {
+      try { audio.pause(); audio.removeAttribute("src"); audio.load(); } catch (e) {}
+    }
+    stopWhite();
     playing = "";
-    document.querySelectorAll(".noise-btn").forEach((b) => b.classList.remove("on"));
+    markOn("");
+    setHint("");
+  };
+
+  function playWhite() {
+    if (playing === "white") return stopAll();
+    stopAll();
+    try {
+      if (!whiteCtx) whiteCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (whiteCtx.state === "suspended") whiteCtx.resume();
+      const len = Math.floor(whiteCtx.sampleRate * 3);
+      const buf = whiteCtx.createBuffer(1, len, whiteCtx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * 0.35;
+      const src = whiteCtx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+      const g = whiteCtx.createGain();
+      g.gain.value = volume();
+      src.connect(g).connect(whiteCtx.destination);
+      src.start();
+      whiteSrc = src;
+      playing = "white";
+      markOn("white");
+      setHint("");
+    } catch (e) {
+      setHint("播放失败", true);
+    }
   }
 
   function play(kind) {
-    if (playing === kind) { stopAll(); return; }
+    if (kind === "white") return playWhite();
+    if (playing === kind) return stopAll();
     stopAll();
-    const ctx = ensureAC();
-    playing = kind;
-
-    const src = ctx.createBufferSource();
-    src.buffer = noiseBuffer(ctx, kind === "white" ? "white" : "brown", 5);
-    src.loop = true;
-
-    let node = src;
-    const chain = [src];
-
-    const add = (n) => { chain.push(n); node.connect(n); node = n; return n; };
-
-    if (kind === "rain") {
-      const hp = add(ctx.createBiquadFilter());
-      hp.type = "highpass"; hp.frequency.value = 700;
-      const lp = add(ctx.createBiquadFilter());
-      lp.type = "lowpass"; lp.frequency.value = 7000;
-      const g = add(ctx.createGain());
-      g.gain.value = 0.5;
-      add(ctx.destination);
-    } else if (kind === "fire") {
-      const lp = add(ctx.createBiquadFilter());
-      lp.type = "lowpass"; lp.frequency.value = 900;
-      const g = add(ctx.createGain());
-      g.gain.value = 0.55;
-      add(ctx.destination);
-      // 噼啪声
-      const crackle = setInterval(() => {
-        if (playing !== "fire") return clearInterval(crackle);
-        try {
-          const o = ctx.createOscillator();
-          const cg = ctx.createGain();
-          o.type = "square";
-          o.frequency.value = 180 + Math.random() * 900;
-          cg.gain.setValueAtTime(0.0001, ctx.currentTime);
-          cg.gain.exponentialRampToValueAtTime(0.05 + Math.random() * 0.06, ctx.currentTime + 0.005);
-          cg.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.06);
-          o.connect(cg).connect(ctx.destination);
-          o.start(); o.stop(ctx.currentTime + 0.07);
-        } catch (e) {}
-      }, 260);
-      chain.push({ stop: () => clearInterval(crackle) });
-    } else if (kind === "cafe") {
-      const bp = add(ctx.createBiquadFilter());
-      bp.type = "bandpass"; bp.frequency.value = 900; bp.Q.value = 0.7;
-      const g = add(ctx.createGain());
-      g.gain.value = 0.9;
-      add(ctx.destination);
-    } else if (kind === "wave") {
-      const lp = add(ctx.createBiquadFilter());
-      lp.type = "lowpass"; lp.frequency.value = 1200;
-      const g = add(ctx.createGain());
-      g.gain.value = 0.35;
-      add(ctx.destination);
-      // 潮汐起伏
-      const lfo = ctx.createOscillator();
-      const lfoGain = ctx.createGain();
-      lfo.frequency.value = 0.09;
-      lfoGain.gain.value = 0.32;
-      lfo.connect(lfoGain).connect(g.gain);
-      lfo.start();
-      chain.push(lfo);
-    } else {
-      const g = add(ctx.createGain());
-      g.gain.value = 0.28;
-      add(ctx.destination);
+    if (!audio) audio = new Audio();
+    const url = window.ACCOUNT && window.ACCOUNT.mediaUrl
+      ? window.ACCOUNT.mediaUrl("noise/" + kind + ".mp3")
+      : "";
+    audio.loop = true;
+    audio.volume = volume();
+    audio.src = url;
+    audio.onerror = () => {
+      playing = "";
+      markOn("");
+      setHint("「" + (TRACKS[kind] || kind) + "」还没上传（后台 → 音效）", true);
+    };
+    setHint("加载中…");
+    const p = audio.play();
+    if (p && p.then) {
+      p.then(() => {
+        playing = kind;
+        markOn(kind);
+        setHint(TRACKS[kind] || "");
+      }).catch(() => {
+        playing = "";
+        markOn("");
+        setHint("「" + (TRACKS[kind] || kind) + "」还没上传（后台 → 音效）", true);
+      });
     }
-
-    src.start();
-    nodes = chain;
-    const btn = document.querySelector('.noise-btn[data-noise="' + kind + '"]');
-    if (btn) btn.classList.add("on");
   }
 
   /* ================= 初始化 ================= */
@@ -200,10 +181,12 @@
         reset(+b.dataset.min);
       };
     });
-    const s = $("#tmStart"), r = $("#tmReset");
+    const s = $("#tmStart");
+    const r = $("#tmReset");
     if (s) s.onclick = go;
     if (r) r.onclick = () => {
-      reset(+((document.querySelector(".tm-modes .tag.on") || {}).dataset || {}).min || 25);
+      const on = document.querySelector(".tm-modes .tag.on");
+      reset(on ? +on.dataset.min : 25);
     };
 
     document.querySelectorAll(".noise-btn").forEach((b) => {
@@ -211,8 +194,13 @@
     });
     const ns = $("#noiseStop");
     if (ns) ns.onclick = stopAll;
+    const vol = $("#noiseVol");
+    if (vol) {
+      vol.oninput = () => {
+        if (audio) audio.volume = volume();
+      };
+    }
 
-    // 离开工具页就停掉声音
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) stopAll();
     });

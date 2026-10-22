@@ -68,6 +68,7 @@
         <button type="button" class="tag${tab === "comments" ? " on" : ""}" data-tab="comments">评论</button>
         <button type="button" class="tag${tab === "users" ? " on" : ""}" data-tab="users">账号</button>
         <button type="button" class="tag${tab === "works" ? " on" : ""}" data-tab="works">作品</button>
+        <button type="button" class="tag${tab === "noise" ? " on" : ""}" data-tab="noise">音效</button>
         <button type="button" class="tag${tab === "qa" ? " on" : ""}" data-tab="qa">问答</button>
         <button type="button" class="tag${tab === "about" ? " on" : ""}" data-tab="about">关于页</button>
       </div>
@@ -79,6 +80,7 @@
     else if (tab === "comments") renderComments();
     else if (tab === "users") renderUsers();
     else if (tab === "works") renderWorks();
+    else if (tab === "noise") renderNoise();
     else if (tab === "qa") renderQa();
     else if (tab === "about") renderAbout();
   }
@@ -324,6 +326,72 @@
         } catch (e) { alert("改不了：" + e.message); }
       };
       list.appendChild(d);
+    });
+  }
+
+  /* ---------- 音效 ---------- */
+  const NOISE_SLOTS = [["rain", "雨声"], ["fire", "篝火"], ["cafe", "咖啡馆"], ["wave", "海浪"]];
+
+  function renderNoise() {
+    const pane = $("#adminPane");
+    pane.innerHTML =
+      '<p class="comment-as" style="margin-bottom:14px">把 mp3 传上去就会替换前台对应按钮。建议 30 秒~3 分钟、1MB 左右的循环音频。</p>' +
+      '<div class="noise-admin" id="nsList"></div>';
+    const wrap = $("#nsList");
+    NOISE_SLOTS.forEach(([key, label]) => {
+      const d = document.createElement("div");
+      d.className = "ns-row";
+      d.innerHTML =
+        '<div class="ns-main"><b></b><span class="ns-sub"></span></div>' +
+        '<div class="ns-btns">' +
+        '<label class="tag upload-btn">选择文件<input type="file" accept="audio/*" hidden></label>' +
+        '<button type="button" class="tag" data-act="try">试听</button>' +
+        '<button type="button" class="tag danger" data-act="del">删除</button>' +
+        '</div>';
+      d.querySelector("b").textContent = label;
+      const sub = d.querySelector(".ns-sub");
+      sub.textContent = "noise/" + key + ".mp3";
+
+      let cur = null;
+      const inp = d.querySelector("input[type=file]");
+      inp.onchange = async () => {
+        const f = inp.files && inp.files[0];
+        if (!f) return;
+        if (f.size > 8 * 1024 * 1024) {
+          sub.textContent = "文件太大了（上限 8MB）";
+          sub.classList.add("bad");
+          return;
+        }
+        sub.classList.remove("bad");
+        sub.textContent = "上传中…";
+        try {
+          await window.ACCOUNT.uploadObject("noise/" + key + ".mp3", f, f.type || "audio/mpeg");
+          sub.textContent = "已上传 · " + Math.round(f.size / 1024) + " KB";
+        } catch (e) {
+          sub.textContent = "失败：" + e.message;
+          sub.classList.add("bad");
+        }
+        inp.value = "";
+      };
+
+      d.querySelector('[data-act="try"]').onclick = () => {
+        if (cur) { cur.pause(); cur = null; return; }
+        cur = new Audio(window.ACCOUNT.mediaUrl("noise/" + key + ".mp3"));
+        cur.play().catch(() => {
+          sub.textContent = "还没有这个音效";
+          sub.classList.add("bad");
+          cur = null;
+        });
+        cur.onended = () => { cur = null; };
+      };
+
+      d.querySelector('[data-act="del"]').onclick = async () => {
+        if (!confirm("删除「" + label + "」的音频？")) return;
+        await window.ACCOUNT.removeObject("noise/" + key + ".mp3");
+        sub.textContent = "已删除（noise/" + key + ".mp3）";
+      };
+
+      wrap.appendChild(d);
     });
   }
 

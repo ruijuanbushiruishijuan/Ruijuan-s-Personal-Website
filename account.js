@@ -172,6 +172,7 @@
   }
 
   const imageUrl = (p) => CFG.url + "/storage/v1/object/public/works/" + p;
+  const mediaUrl = (p) => CFG.url + "/storage/v1/object/public/" + p;
 
   /* ---------- 状态广播 ---------- */
   function emit() {
@@ -385,7 +386,7 @@
   window.ACCOUNT = {
     state,
     onChange: (fn) => { listeners.push(fn); try { fn(state()); } catch (e) {} },
-    signIn, signUp, signOut, saveContact, uploadObject, removeObject, imageUrl,
+    signIn, signUp, signOut, saveContact, uploadObject, removeObject, imageUrl, mediaUrl,
     api: (path, o) => api(path, Object.assign({}, o, { token: session ? session.access_token : undefined })),
     publicApi: (path, o) => api(path, o),
   };

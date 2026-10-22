@@ -951,3 +951,18 @@ html[data-theme="dark"] .deco{opacity:.22}
 .wk-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
 .wk-title{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wk-sub{font-size:11px;color:var(--gray)}
+
+/* ===== 音效（工具页 + 后台） ===== */
+.noise-vol{display:flex;align-items:center;gap:12px;margin-top:14px}
+.noise-vol span{font-size:10px;letter-spacing:.2em;font-weight:800;color:var(--gray)}
+.noise-vol input[type=range]{
+  flex:1;max-width:220px;accent-color:var(--red);height:20px;
+}
+#noiseHint.bad{color:var(--red);font-weight:700}
+.noise-admin{display:flex;flex-direction:column}
+.ns-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--hair);flex-wrap:wrap}
+.ns-main{flex:1;min-width:120px;display:flex;flex-direction:column;gap:4px}
+.ns-main b{font-size:13.5px}
+.ns-sub{font-size:11px;color:var(--gray)}
+.ns-sub.bad{color:var(--red)}
+.ns-btns{display:flex;gap:7px;flex-wrap:wrap}
