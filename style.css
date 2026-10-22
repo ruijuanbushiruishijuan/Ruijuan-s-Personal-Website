@@ -721,6 +721,10 @@ html[data-theme="dark"] .title-main{text-shadow:6px 6px 0 rgba(224,181,74,.5)}
 .tool-hint{font-size:11px;color:var(--gray);margin-top:12px;line-height:1.7}
 
 /* ===== 长按点赞 ===== */
+.stat-like{
+  touch-action:none;-webkit-touch-callout:none;
+  -webkit-user-select:none;user-select:none;
+}
 .stat-like.pressing{
   background:var(--red);border-color:var(--red);color:#fff;
   animation:likePulse .65s ease-out;

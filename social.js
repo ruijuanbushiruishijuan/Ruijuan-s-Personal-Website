@@ -196,26 +196,43 @@
     const likeBtn = $("#likeBtn");
     let pressTimer = null;
     let longFired = false;
-    const endPress = () => {
+    let pressing = false;
+
+    const cancelPress = () => {
       clearTimeout(pressTimer);
+      pressTimer = null;
+      pressing = false;
       likeBtn.classList.remove("pressing");
     };
-    likeBtn.addEventListener("pointerdown", () => {
+    const beginPress = () => {
+      if (pressing) return;
+      pressing = true;
       longFired = false;
       likeBtn.classList.add("pressing");
       pressTimer = setTimeout(() => {
+        pressTimer = null;
+        pressing = false;
         longFired = true;
         likeBtn.classList.remove("pressing");
+        if (navigator.vibrate) navigator.vibrate(15);
         openLikeList();
-      }, 650);
-    });
-    likeBtn.addEventListener("pointerup", endPress);
-    likeBtn.addEventListener("pointercancel", endPress);
-    likeBtn.addEventListener("pointerleave", endPress);
+      }, 600);
+    };
+
+    likeBtn.addEventListener("pointerdown", beginPress);
+    likeBtn.addEventListener("pointerup", cancelPress);
+    likeBtn.addEventListener("pointercancel", cancelPress);
+    likeBtn.addEventListener("contextmenu", (e) => e.preventDefault());
     likeBtn.addEventListener("click", (e) => {
-      if (longFired) { e.preventDefault(); longFired = false; return; }
+      if (longFired) {
+        e.preventDefault();
+        e.stopPropagation();
+        longFired = false;
+        return;
+      }
       toggleLike();
     });
+
     const lc = $("#likeModalClose");
     if (lc) lc.onclick = () => { $("#likeModal").hidden = true; };
     const lm = $("#likeModal");
