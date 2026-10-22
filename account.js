@@ -150,7 +150,6 @@
         apikey: CFG.key,
         Authorization: "Bearer " + session.access_token,
         "Content-Type": type || "application/octet-stream",
-        "x-upsert": "true",
       },
       body: blob,
     });
