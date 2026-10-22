@@ -840,3 +840,58 @@ html[data-theme="dark"] .title-main{text-shadow:6px 6px 0 rgba(224,181,74,.5)}
 .nav-rule{flex:0 0 18px;width:18px}
 .nav-count,.user-chip{flex:0 0 auto}
 .user-chip{margin-left:0}
+
+/* ===== 角落装饰（低透明度，右下角） ===== */
+.section{position:relative}
+.deco{
+  position:absolute;right:-6px;bottom:-6px;
+  width:min(44vw,210px);height:min(44vw,210px);
+  pointer-events:none;z-index:0;opacity:.13;
+  -webkit-mask-image:radial-gradient(circle at 100% 100%, #000 0 52%, transparent 74%);
+  mask-image:radial-gradient(circle at 100% 100%, #000 0 52%, transparent 74%);
+}
+html[data-theme="dark"] .deco{opacity:.22}
+
+/* 文章：斜条纹 + 圆环 */
+.d-list{
+  background:
+    repeating-linear-gradient(45deg, var(--red) 0 9px, transparent 9px 24px),
+    radial-gradient(circle at 74% 26%, transparent 0 30%, var(--blue) 30% 33%, transparent 34%);
+}
+/* 文章内页：单圆环 + 小三角 */
+.d-article{
+  background:
+    radial-gradient(circle at 78% 78%, transparent 0 34%, var(--red) 34% 37%, transparent 38%),
+    linear-gradient(225deg, transparent 0 62%, var(--yellow) 62% 100%);
+}
+/* 归档：细网格 */
+.d-archive{
+  background:
+    repeating-linear-gradient(0deg, var(--ink) 0 1.5px, transparent 1.5px 20px),
+    repeating-linear-gradient(90deg, var(--ink) 0 1.5px, transparent 1.5px 20px);
+}
+/* 关于：斜切色块 */
+.d-about{
+  background: linear-gradient(135deg, var(--yellow) 0 52%, transparent 52%);
+}
+/* 问答：扇形 + 点 */
+.d-qa{
+  background:
+    conic-gradient(from 190deg at 82% 82%, var(--red) 0 26%, transparent 26% 100%),
+    radial-gradient(circle at 26% 26%, var(--ink) 0 10%, transparent 11%);
+}
+/* 工具：同心圆 */
+.d-tools{
+  background: repeating-radial-gradient(circle at 100% 100%, transparent 0 13px, var(--blue) 13px 15px);
+}
+/* 账号：细斜带 */
+.d-account{
+  background: repeating-linear-gradient(-58deg, var(--red) 0 12px, transparent 12px 38px);
+}
+/* 后台：十字 + 方块 */
+.d-admin{
+  background:
+    linear-gradient(var(--ink), var(--ink)) 50% 50% / 2px 100% no-repeat,
+    linear-gradient(var(--ink), var(--ink)) 50% 50% / 100% 2px no-repeat,
+    radial-gradient(circle at 50% 50%, var(--red) 0 16%, transparent 17%);
+}
