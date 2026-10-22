@@ -191,7 +191,7 @@
 
   /* ---------- 区块切换 ---------- */
   function showSection(name) {
-    ["list", "article", "archive", "about", "account", "admin"].forEach(id => {
+    ["list", "article", "archive", "about", "tools", "account", "admin"].forEach(id => {
       const el = $("#" + id);
       if (el) el.hidden = (id !== name);
     });
@@ -256,7 +256,7 @@
   });
 
   /* ---------- 导航 ---------- */
-  document.querySelectorAll('.nav a[href^="#"]').forEach(a => {
+  document.querySelectorAll('.nav a[href^="#"]:not([target])').forEach(a => {
     a.onclick = e => {
       e.preventDefault();
       const id = a.getAttribute("href").slice(1);
@@ -334,6 +334,11 @@
       if (map.about) $("#aboutText").textContent = map.about;
       if (map.what) $("#aboutWhat").textContent = map.what;
       if (map.where) $("#aboutWhere").textContent = map.where;
+      const music = $("#navMusic");
+      if (music && map.netease) {
+        music.href = map.netease;
+        music.hidden = false;
+      }
     } catch (e) {}
   }
   window.RELOAD_SITE = loadSiteInfo;

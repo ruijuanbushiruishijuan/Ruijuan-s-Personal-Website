@@ -337,6 +337,7 @@
       <label class="field"><span>КТО / 你是谁</span><textarea id="abAbout" rows="4"></textarea></label>
       <label class="field"><span>ЧТО / 你在做什么</span><textarea id="abWhat" rows="4"></textarea></label>
       <label class="field"><span>ГДЕ / 在哪找到你</span><textarea id="abWhere" rows="4"></textarea></label>
+      <label class="field"><span>网易云音乐主页链接（留空则导航不显示「音乐」）</span><input id="abMusic" placeholder="https://music.163.com/#/user/home?id=..."></label>
       <div class="pf-actions">
         <button type="button" class="btn-red" id="abSave">保存</button>
         <span class="comment-as" id="abMsg"></span>
@@ -345,6 +346,7 @@
     $("#abAbout").value = def("about", $("#aboutText").textContent);
     $("#abWhat").value = def("what", $("#aboutWhat").textContent);
     $("#abWhere").value = def("where", $("#aboutWhere").textContent);
+    $("#abMusic").value = map.netease || "";
     $("#abSave").onclick = async () => {
       const msg = $("#abMsg");
       msg.classList.remove("bad");
@@ -353,6 +355,7 @@
         ["about", $("#abAbout").value],
         ["what", $("#abWhat").value],
         ["where", $("#abWhere").value],
+        ["netease", $("#abMusic").value.trim()],
       ];
       try {
         for (const [k, v] of items) {

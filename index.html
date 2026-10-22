@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#EDE5D3">
 <title>个人博客</title>
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 
@@ -38,6 +38,8 @@
     <a href="#list" id="navList" class="active">文章</a>
     <a href="#archive">归档</a>
     <a href="#about">关于</a>
+    <a href="#tools">工具</a>
+    <a href="#" id="navMusic" target="_blank" rel="noopener" hidden>音乐</a>
     <span class="nav-rule"></span>
     <span class="nav-count" id="postCount">00</span>
     <button class="user-chip" id="userChip" type="button">登录</button>
@@ -215,10 +217,48 @@
       </div>
     </section>
 
+    <!-- ===== 工具 ===== -->
+    <section id="tools" class="section" hidden>
+      <div class="section-head">
+        <span class="num">05</span>
+        <h2>ИНСТРУМЕНТЫ / 工具</h2>
+      </div>
+
+      <div class="tool-block">
+        <div class="block-label">ПОМОДОРО / 番茄钟</div>
+        <div class="tomato">
+          <div class="tm-modes">
+            <button type="button" class="tag on" data-min="25">专注 25</button>
+            <button type="button" class="tag" data-min="5">休息 5</button>
+            <button type="button" class="tag" data-min="50">深度 50</button>
+          </div>
+          <div class="tm-clock" id="tmClock">25:00</div>
+          <div class="tm-bar"><i id="tmBar"></i></div>
+          <div class="tm-actions">
+            <button type="button" class="btn-red" id="tmStart">开始</button>
+            <button type="button" class="tag" id="tmReset">归零</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-block">
+        <div class="block-label">ШУМ / 白噪音</div>
+        <div class="noise">
+          <button type="button" class="tag noise-btn" data-noise="rain">雨声</button>
+          <button type="button" class="tag noise-btn" data-noise="fire">篝火</button>
+          <button type="button" class="tag noise-btn" data-noise="cafe">咖啡馆</button>
+          <button type="button" class="tag noise-btn" data-noise="wave">海浪</button>
+          <button type="button" class="tag noise-btn" data-noise="white">白噪</button>
+          <button type="button" class="tag" id="noiseStop">静音</button>
+        </div>
+        <p class="tool-hint">声音由浏览器实时合成，不加载任何音频文件；切走页面会自动停。</p>
+      </div>
+    </section>
+
     <!-- ===== 后台 ===== -->
     <section id="admin" class="section" hidden>
       <div class="section-head">
-        <span class="num">05</span>
+        <span class="num">06</span>
         <h2>АДМИН / 后台</h2>
       </div>
       <div id="adminBody" class="admin-body"></div>
@@ -235,11 +275,22 @@
 </div>
 
 <button class="totop" id="toTop" hidden aria-label="回到顶部">↑</button>
+<div class="modal" id="likeModal" hidden>
+  <div class="modal-box">
+    <div class="modal-head">
+      <span>Кто лайкнул / 点赞名单</span>
+      <button type="button" class="modal-x" id="likeModalClose">×</button>
+    </div>
+    <div class="modal-body" id="likeModalBody"></div>
+  </div>
+</div>
 
-<script src="posts.js?v=5"></script>
-<script src="account.js?v=5"></script>
-<script src="social.js?v=5"></script>
-<script src="admin.js?v=5"></script>
-<script src="app.js?v=5"></script>
+
+<script src="posts.js?v=6"></script>
+<script src="account.js?v=6"></script>
+<script src="social.js?v=6"></script>
+<script src="tools.js?v=6"></script>
+<script src="admin.js?v=6"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>

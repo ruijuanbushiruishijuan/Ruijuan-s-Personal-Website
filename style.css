@@ -700,3 +700,52 @@ html[data-theme="dark"] .title-main{text-shadow:6px 6px 0 rgba(224,181,74,.5)}
 .pf-check{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.08em}
 .pf-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .pf-actions .btn-red{padding:10px 26px;margin:0}
+
+/* ===== 工具页 ===== */
+.tool-block{margin-bottom:42px}
+.tomato{
+  border:2px solid var(--ink);padding:24px 18px;display:flex;flex-direction:column;
+  gap:16px;align-items:center;background:transparent;
+}
+.tm-modes{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.tm-clock{
+  font-family:"Impact","Arial Black",sans-serif;font-size:clamp(58px,18vw,92px);
+  line-height:1;letter-spacing:.02em;color:var(--ink);font-variant-numeric:tabular-nums;
+}
+.tm-bar{width:100%;height:9px;background:transparent;border:2px solid var(--ink);overflow:hidden}
+.tm-bar i{display:block;height:100%;width:0;background:var(--red);transition:width .3s linear}
+.tm-actions{display:flex;gap:12px;align-items:center}
+.tm-actions .btn-red{padding:10px 32px;margin:0}
+.noise{display:flex;gap:9px;flex-wrap:wrap}
+.noise-btn.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.tool-hint{font-size:11px;color:var(--gray);margin-top:12px;line-height:1.7}
+
+/* ===== 长按点赞 ===== */
+.stat-like.pressing{
+  background:var(--red);border-color:var(--red);color:#fff;
+  animation:likePulse .65s ease-out;
+}
+@keyframes likePulse{
+  from{box-shadow:0 0 0 0 rgba(193,18,31,.55)}
+  to{box-shadow:0 0 0 18px rgba(193,18,31,0)}
+}
+
+/* ===== 弹窗 ===== */
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.62);display:flex;
+  align-items:center;justify-content:center;z-index:60;padding:24px;
+}
+.modal-box{
+  background:var(--paper);border:3px solid var(--ink);box-shadow:8px 8px 0 var(--red);
+  width:100%;max-width:390px;max-height:70vh;display:flex;flex-direction:column;
+}
+.modal-head{
+  display:flex;align-items:center;justify-content:space-between;padding:14px 16px;
+  border-bottom:2px solid var(--ink);font-size:11px;letter-spacing:.18em;font-weight:800;
+}
+.modal-x{border:none;background:none;font-size:24px;line-height:1;cursor:pointer;color:var(--ink);padding:0 4px}
+.modal-x:hover{color:var(--red)}
+.modal-body{padding:6px 16px 16px;overflow:auto}
+.like-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--hair)}
+.like-row b{font-size:13.5px;letter-spacing:.04em}
+.like-row span{margin-left:auto;font-size:11px;color:var(--gray)}

@@ -145,6 +145,35 @@
     }
   }
 
+  /* ---------- 点赞名单（长按） ---------- */
+  async function openLikeList() {
+    const st = window.ACCOUNT.state();
+    if (!(st.loggedIn && st.profile && st.profile.role === "admin")) return;
+    const box = $("#likeModal");
+    const body = $("#likeModalBody");
+    if (!box || !body) return;
+    box.hidden = false;
+    body.innerHTML = '<p class="c-empty">加载中…</p>';
+    try {
+      const rows = await pub("/rest/v1/like_feed?select=*&post_id=eq." + enc(current) + "&order=created_at.desc");
+      if (!rows || !rows.length) { body.innerHTML = '<p class="c-empty">这篇还没有人点赞。</p>'; return; }
+      body.innerHTML = "";
+      rows.forEach((r) => {
+        const d = document.createElement("div");
+        d.className = "like-row";
+        const b1 = document.createElement("b");
+        b1.textContent = r.username || "匿名";
+        const s1 = document.createElement("span");
+        s1.textContent = fmt(r.created_at);
+        d.appendChild(b1);
+        d.appendChild(s1);
+        body.appendChild(d);
+      });
+    } catch (e) {
+      body.innerHTML = '<p class="c-empty">加载失败。</p>';
+    }
+  }
+
   /* ---------- 杂 ---------- */
   function gotoAccount(tip) {
     if (window.SHOW_SECTION) window.SHOW_SECTION("account");
@@ -164,7 +193,33 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("post:open", (e) => loadPost(e.detail.id));
-    $("#likeBtn").onclick = toggleLike;
+    const likeBtn = $("#likeBtn");
+    let pressTimer = null;
+    let longFired = false;
+    const endPress = () => {
+      clearTimeout(pressTimer);
+      likeBtn.classList.remove("pressing");
+    };
+    likeBtn.addEventListener("pointerdown", () => {
+      longFired = false;
+      likeBtn.classList.add("pressing");
+      pressTimer = setTimeout(() => {
+        longFired = true;
+        likeBtn.classList.remove("pressing");
+        openLikeList();
+      }, 650);
+    });
+    likeBtn.addEventListener("pointerup", endPress);
+    likeBtn.addEventListener("pointercancel", endPress);
+    likeBtn.addEventListener("pointerleave", endPress);
+    likeBtn.addEventListener("click", (e) => {
+      if (longFired) { e.preventDefault(); longFired = false; return; }
+      toggleLike();
+    });
+    const lc = $("#likeModalClose");
+    if (lc) lc.onclick = () => { $("#likeModal").hidden = true; };
+    const lm = $("#likeModal");
+    if (lm) lm.onclick = (e) => { if (e.target === lm) lm.hidden = true; };
     $("#commentForm").onsubmit = submitComment;
     if (window.ACCOUNT) window.ACCOUNT.onChange(syncWho);
     loadAllLikes();
