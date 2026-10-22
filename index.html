@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#EDE5D3">
 <title>个人博客</title>
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 
@@ -38,6 +38,7 @@
     <a href="#list" id="navList" class="active">文章</a>
     <a href="#archive">归档</a>
     <a href="#about">关于</a>
+    <a href="#qa">问答</a>
     <a href="#tools">工具</a>
     <a href="#" id="navMusic" target="_blank" rel="noopener" hidden>音乐</a>
     <span class="nav-rule"></span>
@@ -148,10 +149,31 @@
       </div>
     </section>
 
+    <!-- ===== 问答 ===== -->
+    <section id="qa" class="section" hidden>
+      <div class="section-head">
+        <span class="num">04</span>
+        <h2>ВОПРОС / 问答</h2>
+      </div>
+
+      <p class="qa-intro">有什么想问的都可以写在这儿。页面上<strong>永远只显示“匿名”</strong>——只有站长知道是谁问的，用来防止乱问，不会公开。</p>
+
+      <form class="qa-form" id="qaForm">
+        <textarea id="qaInput" rows="3" maxlength="1000" placeholder="写下你的问题…"></textarea>
+        <div class="comment-actions">
+          <span class="comment-as" id="qaWho">登录后才能提问</span>
+          <button type="submit" class="btn-red">提问</button>
+        </div>
+        <p class="auth-msg" id="qaMsg"></p>
+      </form>
+
+      <div class="qa-list" id="qaList"></div>
+    </section>
+
     <!-- ===== 账号 ===== -->
     <section id="account" class="section" hidden>
       <div class="section-head">
-        <span class="num">04</span>
+        <span class="num">05</span>
         <h2>АККАУНТ / 账号</h2>
       </div>
 
@@ -236,7 +258,7 @@
     <!-- ===== 工具 ===== -->
     <section id="tools" class="section" hidden>
       <div class="section-head">
-        <span class="num">05</span>
+        <span class="num">06</span>
         <h2>ИНСТРУМЕНТЫ / 工具</h2>
       </div>
 
@@ -274,7 +296,7 @@
     <!-- ===== 后台 ===== -->
     <section id="admin" class="section" hidden>
       <div class="section-head">
-        <span class="num">06</span>
+        <span class="num">07</span>
         <h2>АДМИН / 后台</h2>
       </div>
       <div id="adminBody" class="admin-body"></div>
@@ -302,11 +324,12 @@
 </div>
 
 
-<script src="posts.js?v=8"></script>
-<script src="account.js?v=8"></script>
-<script src="social.js?v=8"></script>
-<script src="tools.js?v=8"></script>
-<script src="admin.js?v=8"></script>
-<script src="app.js?v=8"></script>
+<script src="posts.js?v=10"></script>
+<script src="account.js?v=10"></script>
+<script src="social.js?v=10"></script>
+<script src="tools.js?v=10"></script>
+<script src="qa.js?v=10"></script>
+<script src="admin.js?v=10"></script>
+<script src="app.js?v=10"></script>
 </body>
 </html>

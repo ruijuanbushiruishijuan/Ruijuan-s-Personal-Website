@@ -67,6 +67,7 @@
         <button type="button" class="tag${tab === "posts" ? " on" : ""}" data-tab="posts">文章</button>
         <button type="button" class="tag${tab === "comments" ? " on" : ""}" data-tab="comments">评论</button>
         <button type="button" class="tag${tab === "users" ? " on" : ""}" data-tab="users">账号</button>
+        <button type="button" class="tag${tab === "qa" ? " on" : ""}" data-tab="qa">问答</button>
         <button type="button" class="tag${tab === "about" ? " on" : ""}" data-tab="about">关于页</button>
       </div>
       <div id="adminPane"></div>`;
@@ -76,6 +77,7 @@
     if (tab === "posts") renderPosts();
     else if (tab === "comments") renderComments();
     else if (tab === "users") renderUsers();
+    else if (tab === "qa") renderQa();
     else if (tab === "about") renderAbout();
   }
 
@@ -320,6 +322,70 @@
         } catch (e) { alert("改不了：" + e.message); }
       };
       list.appendChild(d);
+    });
+  }
+
+  /* ---------- 问答 ---------- */
+  async function renderQa() {
+    const pane = $("#adminPane");
+    pane.innerHTML = '<div class="admin-list" id="qaWrap"><p class="c-empty">加载中…</p></div>';
+    let rows = [];
+    let profs = [];
+    try { rows = await api("/rest/v1/questions?select=*&order=created_at.desc&limit=200"); } catch (e) {}
+    try { profs = await api("/rest/v1/profiles?select=id,username,contact,contact_type"); } catch (e) {}
+    const map = {};
+    (profs || []).forEach((p) => { map[p.id] = p; });
+    const wrap = $("#qaWrap");
+    if (!rows || !rows.length) {
+      wrap.innerHTML = '<p class="c-empty">还没有人提问。</p>';
+      return;
+    }
+    wrap.innerHTML = "";
+    rows.forEach((q) => {
+      const who = map[q.user_id] || null;
+      const d = document.createElement("div");
+      d.className = "qa-admin-item";
+      d.innerHTML =
+        '<div class="qa-admin-head"><b class="qa-admin-who"></b><span class="qa-admin-time"></span></div>' +
+        '<p class="qa-admin-body"></p>' +
+        '<textarea class="qa-admin-ans" rows="2" placeholder="写回答…"></textarea>' +
+        '<div class="pf-actions"><button type="button" class="btn-red" data-act="save">保存回答</button>' +
+        '<button type="button" class="tag danger" data-act="del">删除</button>' +
+        '<span class="comment-as"></span></div>';
+      const whoEl = d.querySelector(".qa-admin-who");
+      whoEl.textContent = who ? who.username : "匿名";
+      if (who && who.contact) {
+        whoEl.textContent += "（" + (who.contact_type === "wechat" ? "微信 " : "QQ ") + who.contact + "）";
+      }
+      d.querySelector(".qa-admin-time").textContent = fmt(q.created_at);
+      d.querySelector(".qa-admin-body").textContent = q.body;
+      const ta = d.querySelector(".qa-admin-ans");
+      ta.value = q.answer || "";
+      const hint = d.querySelector(".comment-as");
+      d.querySelector('[data-act="save"]').onclick = async () => {
+        hint.classList.remove("bad");
+        hint.textContent = "保存中…";
+        try {
+          await api("/rest/v1/questions?id=eq." + enc(q.id), {
+            method: "PATCH",
+            body: { answer: ta.value, answered_at: new Date().toISOString() },
+          });
+          hint.textContent = "已保存";
+          if (window.QALOAD) window.QALOAD();
+        } catch (e) {
+          hint.textContent = "失败：" + e.message;
+          hint.classList.add("bad");
+        }
+      };
+      d.querySelector('[data-act="del"]').onclick = async () => {
+        if (!confirm("删除这条提问？")) return;
+        try {
+          await api("/rest/v1/questions?id=eq." + enc(q.id), { method: "DELETE" });
+          renderQa();
+          if (window.QALOAD) window.QALOAD();
+        } catch (e) { alert("删不掉：" + e.message); }
+      };
+      wrap.appendChild(d);
     });
   }
 

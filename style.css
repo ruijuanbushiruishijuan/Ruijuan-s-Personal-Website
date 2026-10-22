@@ -789,3 +789,39 @@ html[data-theme="dark"] .title-main{text-shadow:6px 6px 0 rgba(224,181,74,.5)}
 .ct-switch button.on{background:var(--ink);color:var(--paper)}
 .contact-row input{flex:1;min-width:0}
 .me-phone .ct-switch{flex:0 0 auto}
+
+/* ===== 问答 ===== */
+.qa-intro{
+  font-size:13px;line-height:1.85;color:var(--ink);margin-bottom:22px;
+  padding-left:14px;border-left:4px solid var(--red);
+}
+.qa-intro strong{color:var(--red)}
+.qa-form{display:flex;flex-direction:column;gap:10px;margin-bottom:34px}
+.qa-form textarea{
+  border:2px solid var(--ink);background:transparent;color:var(--ink);font-family:inherit;
+  font-size:14px;padding:11px 12px;outline:none;resize:vertical;min-height:84px;line-height:1.7;
+}
+.qa-form textarea:focus{box-shadow:4px 4px 0 var(--yellow)}
+.qa-list{display:flex;flex-direction:column;gap:22px}
+.qa-item{border:2px solid var(--ink);padding:16px 16px 14px;background:transparent}
+.qa-q{display:flex;gap:10px;align-items:flex-start}
+.qa-mark{
+  flex:0 0 auto;width:20px;height:20px;line-height:20px;text-align:center;
+  background:var(--red);color:#fff;font-weight:800;font-size:12px;margin-top:1px;
+}
+.qa-ask{font-size:14.5px;line-height:1.75;font-weight:700;white-space:pre-wrap;word-break:break-word}
+.qa-a{margin:12px 0 0 30px;padding-left:12px;border-left:2px solid var(--hair);font-size:14px;line-height:1.8;white-space:pre-wrap;word-break:break-word}
+.qa-a.pending{color:var(--gray);font-size:12.5px;letter-spacing:.04em}
+.qa-meta{margin:12px 0 0 30px;font-size:11px;color:var(--gray);letter-spacing:.06em}
+
+.qa-admin-item{border-bottom:2px solid var(--ink);padding:16px 0}
+.qa-admin-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.qa-admin-who{font-size:12.5px;color:var(--red);letter-spacing:.04em}
+.qa-admin-time{font-size:11px;color:var(--gray);margin-left:auto}
+.qa-admin-body{font-size:14px;line-height:1.75;margin:0 0 10px;white-space:pre-wrap;word-break:break-word}
+.qa-admin-ans{
+  width:100%;border:2px solid var(--ink);background:transparent;color:var(--ink);
+  font-family:inherit;font-size:13.5px;padding:9px 10px;outline:none;resize:vertical;
+  line-height:1.7;margin-bottom:10px;
+}
+.qa-admin-ans:focus{box-shadow:4px 4px 0 var(--yellow)}
