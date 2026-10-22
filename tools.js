@@ -1,4 +1,4 @@
-/* 工具页：番茄钟 + 白噪音（真实录音） */
+/* 工具页：番茄钟 + 白噪音（真实录音，无缝循环） */
 (function () {
   const $ = (s) => document.querySelector(s);
 
@@ -56,8 +56,7 @@
 
   function beep() {
     try {
-      const ac = window.__noiseCtx || new (window.AudioContext || window.webkitAudioContext)();
-      window.__noiseCtx = ac;
+      const ac = ensureCtx();
       const o = ac.createOscillator();
       const g = ac.createGain();
       o.type = "sine";
@@ -74,10 +73,19 @@
 
   /* ================= 白噪音 ================= */
   const TRACKS = { rain: "雨声", fire: "篝火", cafe: "咖啡馆", wave: "海浪" };
-  let audio = null;
+
+  let ctx = null;
+  let src = null;
+  let gain = null;
   let playing = "";
-  let whiteCtx = null;
-  let whiteSrc = null;
+  const buffers = {};
+
+  function ensureCtx() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === "suspended") ctx.resume();
+    window.__noiseCtx = ctx;
+    return ctx;
+  }
 
   const volume = () => {
     const v = $("#noiseVol");
@@ -87,6 +95,7 @@
   const markOn = (kind) => {
     document.querySelectorAll(".noise-btn").forEach((b) => {
       b.classList.toggle("on", b.dataset.noise === kind);
+      b.classList.remove("loading");
     });
   };
 
@@ -97,75 +106,76 @@
     el.classList.toggle("bad", !!bad);
   };
 
-  const stopWhite = () => {
-    if (whiteSrc) { try { whiteSrc.stop(); } catch (e) {} whiteSrc = null; }
-  };
-
-  const stopAll = () => {
-    if (audio) {
-      try { audio.pause(); audio.removeAttribute("src"); audio.load(); } catch (e) {}
+  function stopAll() {
+    if (src && gain && ctx) {
+      try {
+        const t = ctx.currentTime;
+        gain.gain.cancelScheduledValues(t);
+        gain.gain.setValueAtTime(gain.gain.value, t);
+        gain.gain.linearRampToValueAtTime(0.0001, t + 0.35);
+        const s = src;
+        setTimeout(() => { try { s.stop(); s.disconnect(); } catch (e) {} }, 420);
+      } catch (e) {}
     }
-    stopWhite();
+    src = null;
+    gain = null;
     playing = "";
     markOn("");
     setHint("");
-  };
-
-  function playWhite() {
-    if (playing === "white") return stopAll();
-    stopAll();
-    try {
-      if (!whiteCtx) whiteCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (whiteCtx.state === "suspended") whiteCtx.resume();
-      const len = Math.floor(whiteCtx.sampleRate * 3);
-      const buf = whiteCtx.createBuffer(1, len, whiteCtx.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * 0.35;
-      const src = whiteCtx.createBufferSource();
-      src.buffer = buf;
-      src.loop = true;
-      const g = whiteCtx.createGain();
-      g.gain.value = volume();
-      src.connect(g).connect(whiteCtx.destination);
-      src.start();
-      whiteSrc = src;
-      playing = "white";
-      markOn("white");
-      setHint("");
-    } catch (e) {
-      setHint("播放失败", true);
-    }
   }
 
-  function play(kind) {
-    if (kind === "white") return playWhite();
+  function whiteBuffer(c) {
+    const len = Math.floor(c.sampleRate * 3);
+    const buf = c.createBuffer(1, len, c.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * 0.35;
+    return buf;
+  }
+
+  async function loadBuffer(kind) {
+    if (buffers[kind]) return buffers[kind];
+    if (kind === "white") {
+      buffers.white = whiteBuffer(ensureCtx());
+      return buffers.white;
+    }
+    const url = window.ACCOUNT.mediaUrl("noise/" + kind + ".mp3");
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("missing");
+    const arr = await res.arrayBuffer();
+    const buf = await ensureCtx().decodeAudioData(arr);
+    buffers[kind] = buf;
+    return buf;
+  }
+
+  async function play(kind) {
     if (playing === kind) return stopAll();
     stopAll();
-    if (!audio) audio = new Audio();
-    const url = window.ACCOUNT && window.ACCOUNT.mediaUrl
-      ? window.ACCOUNT.mediaUrl("noise/" + kind + ".mp3")
-      : "";
-    audio.loop = true;
-    audio.volume = volume();
-    audio.src = url;
-    audio.onerror = () => {
-      playing = "";
-      markOn("");
-      setHint("「" + (TRACKS[kind] || kind) + "」还没上传（后台 → 音效）", true);
-    };
+    const c = ensureCtx();
+    const btn = document.querySelector('.noise-btn[data-noise="' + kind + '"]');
+    if (btn) btn.classList.add("loading");
     setHint("加载中…");
-    const p = audio.play();
-    if (p && p.then) {
-      p.then(() => {
-        playing = kind;
-        markOn(kind);
-        setHint(TRACKS[kind] || "");
-      }).catch(() => {
-        playing = "";
-        markOn("");
-        setHint("「" + (TRACKS[kind] || kind) + "」还没上传（后台 → 音效）", true);
-      });
+    let buf;
+    try {
+      buf = await loadBuffer(kind);
+    } catch (e) {
+      if (btn) btn.classList.remove("loading");
+      setHint("「" + (TRACKS[kind] || kind) + "」还没上传（后台 → 音效）", true);
+      return;
     }
+    if (btn) btn.classList.remove("loading");
+
+    gain = c.createGain();
+    gain.gain.setValueAtTime(0.0001, c.currentTime);
+    src = c.createBufferSource();
+    src.buffer = buf;
+    src.loop = true;
+    src.connect(gain).connect(c.destination);
+    src.start();
+    gain.gain.linearRampToValueAtTime(volume(), c.currentTime + 0.6);
+
+    playing = kind;
+    markOn(kind);
+    setHint(kind === "white" ? "白噪" : TRACKS[kind] || "");
   }
 
   /* ================= 初始化 ================= */
@@ -197,7 +207,7 @@
     const vol = $("#noiseVol");
     if (vol) {
       vol.oninput = () => {
-        if (audio) audio.volume = volume();
+        if (gain && ctx) gain.gain.setTargetAtTime(volume(), ctx.currentTime, 0.05);
       };
     }
 
