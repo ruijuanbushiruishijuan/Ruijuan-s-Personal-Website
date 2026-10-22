@@ -969,3 +969,22 @@ html[data-theme="dark"] .deco{opacity:.22}
 
 .noise-btn.loading{opacity:.55;animation:noisePulse 1s ease-in-out infinite}
 @keyframes noisePulse{50%{opacity:.85}}
+
+/* ===== 未登录提示条 ===== */
+.login-tip{
+  display:flex;align-items:center;gap:10px;
+  background:var(--yellow);color:var(--ink);
+  border:2px solid var(--ink);border-top:none;
+  padding:9px 12px;margin-bottom:0;
+  font-size:12px;letter-spacing:.1em;font-weight:700;
+  animation:tipIn .35s ease-out;
+}
+.lt-mark{color:var(--red);font-size:10px;line-height:1}
+.lt-text{flex:1}
+.lt-go{
+  border:2px solid var(--ink);background:var(--ink);color:var(--paper);
+  font-family:inherit;font-size:11px;letter-spacing:.14em;font-weight:800;
+  padding:4px 10px;cursor:pointer;flex:0 0 auto;
+}
+.lt-go:hover{background:var(--red);border-color:var(--red)}
+@keyframes tipIn{from{transform:translateY(-6px);opacity:0}to{transform:none;opacity:1}}
