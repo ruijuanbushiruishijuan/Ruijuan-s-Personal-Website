@@ -307,10 +307,14 @@
   }
 
   /* ---------- 赞数回填（供归档按赞排序） ---------- */
-  window.addEventListener("likes:loaded", e => {
-    const map = e.detail || {};
-    posts.forEach(p => { p.likes = map[p.id] || 0; });
+  let likeMap = {};
+  function applyLikes() {
+    posts.forEach(p => { p.likes = likeMap[p.id] || 0; });
     refresh();
+  }
+  window.addEventListener("likes:loaded", e => {
+    likeMap = e.detail || {};
+    applyLikes();
   });
 
   /* ---------- 从数据库加载文章 ---------- */
@@ -320,7 +324,7 @@
       const rows = await window.ACCOUNT.publicApi("/rest/v1/posts?select=*&order=date.desc");
       if (Array.isArray(rows) && rows.length) {
         posts = rows.map(r => Object.assign({}, r, { tags: r.tags || [] }));
-        refresh();
+        applyLikes();
       }
       return rows;
     } catch (e) { return null; }
