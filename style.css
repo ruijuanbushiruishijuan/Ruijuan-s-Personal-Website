@@ -988,3 +988,21 @@ html[data-theme="dark"] .deco{opacity:.22}
 }
 .lt-go:hover{background:var(--red);border-color:var(--red)}
 @keyframes tipIn{from{transform:translateY(-6px);opacity:0}to{transform:none;opacity:1}}
+
+/* ===== 违禁词 ===== */
+.bw-input{
+  flex:1;min-width:140px;border:2px solid var(--ink);background:transparent;color:var(--ink);
+  font-family:inherit;font-size:13px;padding:9px 10px;outline:none;
+}
+.bw-input:focus{box-shadow:4px 4px 0 var(--yellow)}
+.bw-list{display:flex;flex-wrap:wrap;gap:8px}
+.bw-chip{
+  display:inline-flex;align-items:center;gap:6px;border:2px solid var(--ink);
+  padding:4px 6px 4px 10px;font-size:12px;letter-spacing:.04em;
+}
+.bw-chip b{font-weight:700}
+.bw-chip button{
+  border:none;background:transparent;color:var(--gray);font-size:16px;line-height:1;
+  cursor:pointer;padding:0 2px;
+}
+.bw-chip button:hover{color:var(--red)}

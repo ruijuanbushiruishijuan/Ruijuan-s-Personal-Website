@@ -69,6 +69,7 @@
         <button type="button" class="tag${tab === "users" ? " on" : ""}" data-tab="users">账号</button>
         <button type="button" class="tag${tab === "works" ? " on" : ""}" data-tab="works">作品</button>
         <button type="button" class="tag${tab === "noise" ? " on" : ""}" data-tab="noise">音效</button>
+        <button type="button" class="tag${tab === "banned" ? " on" : ""}" data-tab="banned">违禁词</button>
         <button type="button" class="tag${tab === "qa" ? " on" : ""}" data-tab="qa">问答</button>
         <button type="button" class="tag${tab === "about" ? " on" : ""}" data-tab="about">关于页</button>
       </div>
@@ -81,6 +82,7 @@
     else if (tab === "users") renderUsers();
     else if (tab === "works") renderWorks();
     else if (tab === "noise") renderNoise();
+    else if (tab === "banned") renderBanned();
     else if (tab === "qa") renderQa();
     else if (tab === "about") renderAbout();
   }
@@ -327,6 +329,74 @@
       };
       list.appendChild(d);
     });
+  }
+
+  /* ---------- 违禁词 ---------- */
+  async function renderBanned() {
+    const pane = $("#adminPane");
+    pane.innerHTML =
+      '<p class="comment-as" style="margin-bottom:12px">评论、提问、用户名、关于页文字都会检查；文章正文不检查。</p>' +
+      '<div class="pf-actions" style="margin-bottom:16px">' +
+      '<input id="bwInput" class="bw-input" placeholder="输入一个词，回车添加">' +
+      '<button type="button" class="btn-red" id="bwAdd">添加</button>' +
+      '<span class="comment-as" id="bwMsg"></span>' +
+      '</div>' +
+      '<div class="bw-list" id="bwList"><p class="c-empty">加载中…</p></div>';
+
+    const input = $("#bwInput");
+    const msg = $("#bwMsg");
+    input.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); addWord(); } };
+    $("#bwAdd").onclick = addWord;
+
+    async function addWord() {
+      const raw = input.value.trim();
+      if (!raw) return;
+      const words = raw.split(/[,，\s]+/).map((w) => w.trim()).filter(Boolean);
+      if (!words.length) return;
+      msg.classList.remove("bad");
+      msg.textContent = "添加中…";
+      let ok = 0;
+      for (const w of words) {
+        try {
+          await api("/rest/v1/banned_words", { method: "POST", body: { word: w } });
+          ok++;
+        } catch (e) {}
+      }
+      input.value = "";
+      msg.textContent = ok ? "已添加 " + ok + " 个" : "都没加上（可能已存在）";
+      await loadWords();
+    }
+
+    async function loadWords() {
+      const list = $("#bwList");
+      let rows = [];
+      try { rows = await api("/rest/v1/banned_words?select=word&order=word"); } catch (e) {}
+      if (!rows || !rows.length) {
+        list.innerHTML = '<p class="c-empty">还没有违禁词。</p>';
+        return;
+      }
+      list.innerHTML = "";
+      rows.forEach((r) => {
+        const chip = document.createElement("span");
+        chip.className = "bw-chip";
+        const t = document.createElement("b");
+        t.textContent = r.word;
+        const x = document.createElement("button");
+        x.type = "button";
+        x.textContent = "×";
+        x.onclick = async () => {
+          try {
+            await api("/rest/v1/banned_words?word=eq." + enc(r.word), { method: "DELETE" });
+            await loadWords();
+          } catch (e) { alert("删不掉：" + e.message); }
+        };
+        chip.appendChild(t);
+        chip.appendChild(x);
+        list.appendChild(chip);
+      });
+    }
+
+    await loadWords();
   }
 
   /* ---------- 音效 ---------- */
