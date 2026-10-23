@@ -588,43 +588,39 @@
       return;
     }
     wrap.innerHTML = "";
+
     rows.forEach((q) => {
       const who = map[q.user_id] || null;
+      const answered = !!(q.answer && q.answer.trim());
       const d = document.createElement("div");
-      d.className = "qa-admin-item";
-      d.innerHTML =
-        '<div class="qa-admin-head"><b class="qa-admin-who"></b><span class="qa-admin-time"></span></div>' +
-        '<p class="qa-admin-body"></p>' +
-        '<textarea class="qa-admin-ans" rows="2" placeholder="写回答…"></textarea>' +
-        '<div class="pf-actions"><button type="button" class="btn-red" data-act="save">保存回答</button>' +
-        '<button type="button" class="tag danger" data-act="del">删除</button>' +
-        '<span class="comment-as"></span></div>';
-      const whoEl = d.querySelector(".qa-admin-who");
+      d.className = "qa-admin-item" + (answered ? " done" : "");
+
+      const head = document.createElement("div");
+      head.className = "qa-admin-head";
+      const whoEl = document.createElement("b");
+      whoEl.className = "qa-admin-who";
       whoEl.textContent = who ? who.username : "匿名";
       if (who && who.contact) {
         whoEl.textContent += "（" + (who.contact_type === "wechat" ? "微信 " : "QQ ") + who.contact + "）";
       }
-      d.querySelector(".qa-admin-time").textContent = fmt(q.created_at);
-      d.querySelector(".qa-admin-body").textContent = q.body;
-      const ta = d.querySelector(".qa-admin-ans");
-      ta.value = q.answer || "";
-      const hint = d.querySelector(".comment-as");
-      d.querySelector('[data-act="save"]').onclick = async () => {
-        hint.classList.remove("bad");
-        hint.textContent = "保存中…";
-        try {
-          await api("/rest/v1/questions?id=eq." + enc(q.id), {
-            method: "PATCH",
-            body: { answer: ta.value, answered_at: new Date().toISOString() },
-          });
-          hint.textContent = "已保存";
-          if (window.QALOAD) window.QALOAD();
-        } catch (e) {
-          hint.textContent = "失败：" + e.message;
-          hint.classList.add("bad");
-        }
-      };
-      d.querySelector('[data-act="del"]').onclick = async () => {
+      const timeEl = document.createElement("span");
+      timeEl.className = "qa-admin-time";
+      timeEl.textContent = fmt(q.created_at);
+      head.appendChild(whoEl);
+      head.appendChild(timeEl);
+
+      const bodyEl = document.createElement("p");
+      bodyEl.className = "qa-admin-body";
+      bodyEl.textContent = q.body;
+
+      const act = document.createElement("div");
+      act.className = "pf-actions";
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "tag danger";
+      delBtn.textContent = "删除";
+      delBtn.onclick = async () => {
         if (!confirm("删除这条提问？")) return;
         try {
           await api("/rest/v1/questions?id=eq." + enc(q.id), { method: "DELETE" });
@@ -632,6 +628,58 @@
           if (window.QALOAD) window.QALOAD();
         } catch (e) { alert("删不掉：" + e.message); }
       };
+
+      if (answered) {
+        const done = document.createElement("span");
+        done.className = "qa-done";
+        done.textContent = "✓ 已回答" + (q.answered_at ? " · " + fmt(q.answered_at) : "");
+        const ansText = document.createElement("p");
+        ansText.className = "qa-admin-ans-text";
+        ansText.textContent = q.answer;
+        act.appendChild(done);
+        act.appendChild(delBtn);
+        d.appendChild(head);
+        d.appendChild(bodyEl);
+        d.appendChild(ansText);
+        d.appendChild(act);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.className = "qa-admin-ans";
+        ta.rows = 2;
+        ta.placeholder = "写回答…";
+        const hint = document.createElement("span");
+        hint.className = "comment-as";
+        const saveBtn = document.createElement("button");
+        saveBtn.type = "button";
+        saveBtn.className = "btn-red";
+        saveBtn.textContent = "保存回答";
+        saveBtn.onclick = async () => {
+          if (!ta.value.trim()) { hint.textContent = "先写点内容"; hint.classList.add("bad"); return; }
+          hint.classList.remove("bad");
+          hint.textContent = "保存中…";
+          saveBtn.disabled = true;
+          try {
+            await api("/rest/v1/questions?id=eq." + enc(q.id), {
+              method: "PATCH",
+              body: { answer: ta.value.trim(), answered_at: new Date().toISOString() },
+            });
+            if (window.QALOAD) window.QALOAD();
+            renderQa();
+          } catch (e) {
+            hint.textContent = "失败：" + e.message;
+            hint.classList.add("bad");
+            saveBtn.disabled = false;
+          }
+        };
+        act.appendChild(saveBtn);
+        act.appendChild(delBtn);
+        act.appendChild(hint);
+        d.appendChild(head);
+        d.appendChild(bodyEl);
+        d.appendChild(ta);
+        d.appendChild(act);
+      }
+
       wrap.appendChild(d);
     });
   }

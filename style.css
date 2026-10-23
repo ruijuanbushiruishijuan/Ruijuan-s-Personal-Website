@@ -1006,3 +1006,15 @@ html[data-theme="dark"] .deco{opacity:.22}
   cursor:pointer;padding:0 2px;
 }
 .bw-chip button:hover{color:var(--red)}
+
+/* ===== 问答后台：已回答状态 ===== */
+.qa-admin-item.done{border-bottom-color:var(--hair)}
+.qa-admin-ans-text{
+  font-size:14px;line-height:1.8;margin:0 0 12px;padding:10px 12px;
+  border-left:3px solid var(--blue);background:rgba(37,66,126,.06);
+  white-space:pre-wrap;word-break:break-word;
+}
+.qa-done{
+  font-size:11px;letter-spacing:.1em;font-weight:800;color:var(--blue);
+  margin-right:auto;
+}
