@@ -1018,3 +1018,14 @@ html[data-theme="dark"] .deco{opacity:.22}
   font-size:11px;letter-spacing:.1em;font-weight:800;color:var(--blue);
   margin-right:auto;
 }
+
+/* ===== 文章分类：横向滑动 ===== */
+.tags{
+  flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;white-space:nowrap;
+  scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;
+  padding-bottom:4px;
+  -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%);
+  mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 18px),transparent 100%);
+}
+.tags::-webkit-scrollbar{display:none;width:0;height:0}
+.tags .tag{flex:0 0 auto}
