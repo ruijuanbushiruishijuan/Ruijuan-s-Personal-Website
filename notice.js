@@ -53,11 +53,13 @@
       const d = document.createElement("div");
       d.className = "notice-row";
       d.innerHTML =
-        '<div class="nr-top"><b class="nr-title"></b><span class="nr-time"></span></div>' +
+        '<div class="nr-top"><b class="nr-title"></b><span class="nr-time"></span>' +
+        '<button class="nr-go" type="button">打开</button></div>' +
         '<div class="nr-body"></div>';
       d.querySelector(".nr-title").textContent = n.title;
       d.querySelector(".nr-time").textContent = fmt(n.created_at);
       d.querySelector(".nr-body").textContent = n.body || "";
+      d.querySelector(".nr-go").onclick = (e) => { e.stopPropagation(); openTarget(n); };
       d.onclick = () => openTarget(n);
       box.appendChild(d);
     });

@@ -328,12 +328,14 @@
       const label = p.status === "pending" ? "待审核" : p.status === "approved" ? "已通过" : "已拒绝";
       d.innerHTML =
         '<div class="ar-main"><b class="ar-title"></b>' +
-        '<span class="ar-sub">' + label + ' · ' + (users[p.user_id] || "匿名") + ' · ' + fmt(p.created_at) + '</span></div>' +
+        '<span class="ar-sub">' + label + ' · ' + (users[p.user_id] || "匿名") + ' · ' + fmt(p.created_at) + '</span>' +
+        '<details class="fm-full"><summary>展开全文</summary><div class="fm-text"></div></details></div>' +
         '<div class="ar-btns">' +
         (p.status !== "approved" ? '<button type="button" class="tag" data-act="ok">通过</button>' : "") +
         (p.status !== "rejected" ? '<button type="button" class="tag danger" data-act="no">拒绝</button>' : "") +
         '<button type="button" class="tag danger" data-act="del">删除</button></div>';
-      d.querySelector(".ar-title").textContent = (p.title || "无标题") + " —— " + String(p.body || "").slice(0, 50);
+      d.querySelector(".ar-title").textContent = p.title || "无标题";
+      d.querySelector(".fm-text").textContent = p.body || "";
       const set = async (status) => {
         try {
           await api("/rest/v1/forum_posts?id=eq." + enc(p.id), {

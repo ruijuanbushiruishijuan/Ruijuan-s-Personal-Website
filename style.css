@@ -1085,3 +1085,26 @@ html[data-theme="dark"] .deco{opacity:.22}
 .forum-form textarea:focus{box-shadow:4px 4px 0 var(--yellow)}
 .forum-list{display:flex;flex-direction:column}
 .fp-body{white-space:pre-wrap;word-break:break-word}
+
+/* 后台论坛审核：展开全文 */
+.fm-full{margin-top:4px}
+.fm-full summary{
+  cursor:pointer;font-size:11.5px;color:var(--red);letter-spacing:.08em;
+  font-weight:700;list-style:none;outline:none;
+}
+.fm-full summary::-webkit-details-marker{display:none}
+.fm-full summary::before{content:"▸ ";}
+.fm-full[open] summary::before{content:"▾ ";}
+.fm-text{
+  margin-top:8px;padding:10px 12px;border-left:2px solid var(--hair);
+  font-size:13px;line-height:1.75;white-space:pre-wrap;word-break:break-word;
+  max-height:360px;overflow:auto;background:var(--wash);
+}
+
+/* 通知：每条右侧的打开按钮 */
+.nr-go{
+  border:2px solid var(--ink);background:var(--ink);color:var(--paper);
+  font-family:inherit;font-size:10px;letter-spacing:.12em;font-weight:800;
+  padding:2px 8px;cursor:pointer;margin-left:10px;flex:0 0 auto;
+}
+.nr-go:hover{background:var(--red);border-color:var(--red)}
