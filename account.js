@@ -144,15 +144,24 @@
 
   async function uploadObject(path, blob, type) {
     if (!session) throw new Error("还没登录");
-    const res = await fetch(CFG.url + "/storage/v1/object/" + path, {
+    if (session.refresh_token && Date.now() > (session.expires_at || 0) - 60000) {
+      await refreshSession();
+    }
+    if (!session) throw new Error("登录已过期，请重新登录");
+    const put = (tk) => fetch(CFG.url + "/storage/v1/object/" + path, {
       method: "POST",
       headers: {
         apikey: CFG.key,
-        Authorization: "Bearer " + session.access_token,
+        Authorization: "Bearer " + tk,
         "Content-Type": type || "application/octet-stream",
       },
       body: blob,
     });
+    let res = await put(session.access_token);
+    if (res.status === 401 && session && session.refresh_token) {
+      const ok = await refreshSession();
+      if (ok && session) res = await put(session.access_token);
+    }
     if (!res.ok) {
       let t = "";
       try { t = await res.text(); } catch (e) {}
@@ -164,6 +173,10 @@
   async function removeObject(path) {
     if (!session) return;
     try {
+      if (session.refresh_token && Date.now() > (session.expires_at || 0) - 60000) {
+        await refreshSession();
+      }
+      if (!session) return;
       await fetch(CFG.url + "/storage/v1/object/" + path, {
         method: "DELETE",
         headers: { apikey: CFG.key, Authorization: "Bearer " + session.access_token },
@@ -383,11 +396,60 @@
     emit();
   }
 
+  /* ---------- 自动续期 ---------- */
+  let refreshing = null;
+  function refreshSession() {
+    if (!session || !session.refresh_token) return Promise.resolve(false);
+    if (!refreshing) {
+      refreshing = (async () => {
+        try {
+          const data = await api("/auth/v1/token?grant_type=refresh_token", {
+            method: "POST",
+            body: { refresh_token: session.refresh_token },
+          });
+          if (!data || !data.access_token) throw new Error("refresh failed");
+          session.access_token = data.access_token;
+          if (data.refresh_token) session.refresh_token = data.refresh_token;
+          session.expires_at = Date.now() + (data.expires_in || 3600) * 1000;
+          if (data.user) session.user = data.user;
+          persist();
+          return true;
+        } catch (e) {
+          session = null; profile = null; persist();
+          try { emit(); } catch (e2) {}
+          return false;
+        } finally {
+          refreshing = null;
+        }
+      })();
+    }
+    return refreshing;
+  }
+
+  async function authed(path, o) {
+    if (!session) throw new Error("请先登录");
+    if (session.refresh_token && Date.now() > (session.expires_at || 0) - 60000) {
+      await refreshSession();
+    }
+    if (!session) throw new Error("登录已过期，请重新登录");
+    try {
+      return await api(path, Object.assign({}, o, { token: session.access_token }));
+    } catch (e) {
+      if (e.status === 401 && session && session.refresh_token) {
+        const ok = await refreshSession();
+        if (ok && session) {
+          return await api(path, Object.assign({}, o, { token: session.access_token }));
+        }
+      }
+      throw e;
+    }
+  }
+
   window.ACCOUNT = {
     state,
     onChange: (fn) => { listeners.push(fn); try { fn(state()); } catch (e) {} },
     signIn, signUp, signOut, saveContact, uploadObject, removeObject, imageUrl, mediaUrl,
-    api: (path, o) => api(path, Object.assign({}, o, { token: session ? session.access_token : undefined })),
+    api: authed,
     publicApi: (path, o) => api(path, o),
   };
 

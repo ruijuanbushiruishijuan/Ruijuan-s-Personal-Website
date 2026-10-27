@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#EDE5D3">
 <title>个人博客</title>
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=24">
 </head>
 <body>
 
@@ -40,6 +40,12 @@
     <button type="button" class="lt-go" id="loginTipGo">去登录</button>
   </div>
 
+  <div class="notice-tip" id="noticeTip" hidden>
+    <span class="lt-mark">◆</span>
+    <span class="lt-text" id="noticeText">你有新的通知</span>
+    <button type="button" class="lt-go" id="noticeGo">查看</button>
+  </div>
+
   <nav class="nav">
     <div class="nav-links" id="navLinks">
       <a href="#list" id="navList" class="active">文章</a>
@@ -47,6 +53,7 @@
       <a href="#archive">归档</a>
       <a href="#about">关于</a>
       <a href="#qa">问答</a>
+      <a href="#forum">论坛</a>
       <a href="#tools">工具</a>
       <a href="#" id="navMusic" target="_blank" rel="noopener" hidden>音乐</a>
     </div>
@@ -196,11 +203,68 @@
       <div class="qa-list" id="qaList"></div>
     </section>
 
+    <!-- ===== 论坛 ===== -->
+    <section id="forum" class="section" hidden>
+      <div class="deco d-forum" aria-hidden="true"></div>
+      <div class="section-head">
+        <span class="num">06</span>
+        <h2>ФОРУМ / 论坛</h2>
+      </div>
+
+      <form class="forum-form" id="forumForm">
+        <input class="forum-title-input" id="forumTitle" type="text" maxlength="60"
+               placeholder="标题（可以留空）" autocomplete="off">
+        <textarea id="forumBody" rows="5" maxlength="5000" placeholder="写点什么，纯文本…"></textarea>
+        <div class="comment-actions">
+          <span class="comment-as" id="forumWho">登录后可以发帖</span>
+          <button type="submit" class="btn-red">发布</button>
+        </div>
+        <p class="auth-msg" id="forumMsg"></p>
+      </form>
+
+      <div class="forum-list" id="forumList"></div>
+      <div class="empty" id="forumEmpty" hidden>还没有帖子，来发第一条吧。</div>
+    </section>
+
+    <!-- ===== 帖子详情 ===== -->
+    <section id="forumPost" class="section article-view" hidden>
+      <div class="deco d-forum" aria-hidden="true"></div>
+      <button class="back" id="forumBack">← 返回论坛</button>
+      <div class="article-meta">
+        <span id="fpAuthor" class="art-author"></span>
+        <span class="dot">◆</span>
+        <span id="fpDate"></span>
+      </div>
+      <h2 class="article-title" id="fpTitle"></h2>
+      <div class="art-stats">
+        <button class="stat-like" id="fpLike" type="button">
+          <span class="stat-tri">▲</span><span id="fpLikes">0</span>
+        </button>
+        <span class="stat-item">评论 <b id="fpCommentCount">0</b></span>
+      </div>
+      <div class="article-body fp-body" id="fpBody"></div>
+
+      <section class="comments">
+        <div class="section-head">
+          <span class="num">◆</span>
+          <h2>КОММЕНТАРИИ / 评论</h2>
+        </div>
+        <div class="comment-list" id="fpCommentList"></div>
+        <form class="comment-form" id="fpCommentForm">
+          <textarea id="fpCommentBody" rows="3" maxlength="1000" placeholder="说点什么…"></textarea>
+          <div class="comment-actions">
+            <span class="comment-as" id="fpCommentAs">登录后可以留言</span>
+            <button type="submit" class="btn-red">发表</button>
+          </div>
+        </form>
+      </section>
+    </section>
+
     <!-- ===== 账号 ===== -->
     <section id="account" class="section" hidden>
       <div class="deco d-account" aria-hidden="true"></div>
       <div class="section-head">
-        <span class="num">06</span>
+        <span class="num">07</span>
         <h2>АККАУНТ / 账号</h2>
       </div>
 
@@ -286,7 +350,7 @@
     <section id="tools" class="section" hidden>
       <div class="deco d-tools" aria-hidden="true"></div>
       <div class="section-head">
-        <span class="num">07</span>
+        <span class="num">08</span>
         <h2>ИНСТРУМЕНТЫ / 工具</h2>
       </div>
 
@@ -330,7 +394,7 @@
     <section id="admin" class="section" hidden>
       <div class="deco d-admin" aria-hidden="true"></div>
       <div class="section-head">
-        <span class="num">08</span>
+        <span class="num">09</span>
         <h2>АДМИН / 后台</h2>
       </div>
       <div id="adminBody" class="admin-body"></div>
@@ -367,14 +431,27 @@
 </div>
 
 
-<script src="posts.js?v=22"></script>
-<script src="account.js?v=22"></script>
-<script src="gate.js?v=22"></script>
-<script src="social.js?v=22"></script>
-<script src="tools.js?v=22"></script>
-<script src="qa.js?v=22"></script>
-<script src="works.js?v=22"></script>
-<script src="admin.js?v=22"></script>
-<script src="app.js?v=22"></script>
+<div class="modal" id="noticeModal" hidden>
+  <div class="modal-box">
+    <div class="modal-head">
+      <span>УВЕДОМЛЕНИЯ / 通知</span>
+      <button type="button" class="modal-x" id="noticeClose">×</button>
+    </div>
+    <div class="modal-body notice-body" id="noticeList"></div>
+  </div>
+</div>
+
+
+<script src="posts.js?v=24"></script>
+<script src="account.js?v=24"></script>
+<script src="gate.js?v=24"></script>
+<script src="social.js?v=24"></script>
+<script src="tools.js?v=24"></script>
+<script src="qa.js?v=24"></script>
+<script src="works.js?v=24"></script>
+<script src="forum.js?v=24"></script>
+<script src="notice.js?v=24"></script>
+<script src="admin.js?v=24"></script>
+<script src="app.js?v=24"></script>
 </body>
 </html>

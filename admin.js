@@ -66,6 +66,7 @@
       <div class="admin-tabs" id="adminTabs">
         <button type="button" class="tag${tab === "posts" ? " on" : ""}" data-tab="posts">文章</button>
         <button type="button" class="tag${tab === "comments" ? " on" : ""}" data-tab="comments">评论</button>
+        <button type="button" class="tag${tab === "forum" ? " on" : ""}" data-tab="forum">论坛</button>
         <button type="button" class="tag${tab === "users" ? " on" : ""}" data-tab="users">账号</button>
         <button type="button" class="tag${tab === "works" ? " on" : ""}" data-tab="works">作品</button>
         <button type="button" class="tag${tab === "noise" ? " on" : ""}" data-tab="noise">音效</button>
@@ -79,6 +80,7 @@
     });
     if (tab === "posts") renderPosts();
     else if (tab === "comments") renderComments();
+    else if (tab === "forum") renderForum();
     else if (tab === "users") renderUsers();
     else if (tab === "works") renderWorks();
     else if (tab === "noise") renderNoise();
@@ -246,33 +248,110 @@
   }
 
   /* ---------- 评论 ---------- */
+  let cmFilter = "all";
+
   async function renderComments() {
     const pane = $("#adminPane");
-    pane.innerHTML = '<div class="admin-list" id="cmList"><p class="c-empty">加载中…</p></div>';
+    pane.innerHTML =
+      '<div class="admin-tabs" id="cmFilter">' +
+      '<button type="button" class="tag' + (cmFilter === "all" ? " on" : "") + '" data-f="all">全部</button>' +
+      '<button type="button" class="tag' + (cmFilter === "article" ? " on" : "") + '" data-f="article">文章</button>' +
+      '<button type="button" class="tag' + (cmFilter === "forum" ? " on" : "") + '" data-f="forum">论坛</button>' +
+      '</div><div class="admin-list" id="cmList"><p class="c-empty">加载中…</p></div>';
+    pane.querySelectorAll("#cmFilter .tag").forEach((b) => {
+      b.onclick = () => { cmFilter = b.dataset.f; renderComments(); };
+    });
+
     let rows = [];
     try {
       rows = await pub("/rest/v1/comment_feed?select=*&order=created_at.desc&limit=200");
     } catch (e) {}
+
+    const isForum = (id) => String(id).startsWith("f_");
+    if (cmFilter === "article") rows = (rows || []).filter((c) => !isForum(c.post_id));
+    if (cmFilter === "forum") rows = (rows || []).filter((c) => isForum(c.post_id));
+
     const list = $("#cmList");
-    if (!rows || !rows.length) { list.innerHTML = '<p class="c-empty">还没有评论。</p>'; return; }
+    if (!rows || !rows.length) { list.innerHTML = '<p class="c-empty">没有评论。</p>'; return; }
+
     const titles = {};
     posts.forEach((p) => { titles[p.id] = p.title; });
+    try {
+      const f = await api("/rest/v1/forum_posts?select=id,title,body");
+      (f || []).forEach((x) => { titles[x.id] = x.title || String(x.body || "").slice(0, 18) || "无标题"; });
+    } catch (e) {}
+
     list.innerHTML = "";
     rows.forEach((c) => {
       const d = document.createElement("div");
       d.className = "admin-row";
-      d.innerHTML = `
-        <div class="ar-main">
-          <b class="ar-title"></b>
-          <span class="ar-sub">${c.username || "匿名"} · ${fmt(c.created_at)} · 《${titles[c.post_id] || c.post_id}》</span>
-        </div>
-        <div class="ar-btns"><button type="button" class="tag danger" data-act="del">删除</button></div>`;
+      const tag = isForum(c.post_id) ? "论坛" : "文章";
+      d.innerHTML =
+        '<div class="ar-main"><b class="ar-title"></b>' +
+        '<span class="ar-sub">' + tag + ' · ' + (c.username || "匿名") + ' · ' + fmt(c.created_at) +
+        ' · 《' + (titles[c.post_id] || c.post_id) + '》</span></div>' +
+        '<div class="ar-btns"><button type="button" class="tag danger" data-act="del">删除</button></div>';
       d.querySelector(".ar-title").textContent = c.body;
       d.querySelector('[data-act="del"]').onclick = async () => {
         if (!confirm("删除这条评论？")) return;
         try {
           await api("/rest/v1/comments?id=eq." + enc(c.id), { method: "DELETE" });
           renderComments();
+        } catch (e) { alert("删不掉：" + e.message); }
+      };
+      list.appendChild(d);
+    });
+  }
+
+  /* ---------- 论坛审核 ---------- */
+  async function renderForum() {
+    const pane = $("#adminPane");
+    pane.innerHTML = '<div class="admin-list" id="fmList"><p class="c-empty">加载中…</p></div>';
+    let rows = [];
+    try {
+      rows = await api("/rest/v1/forum_posts?select=id,user_id,title,body,status,created_at&order=created_at.desc&limit=200");
+    } catch (e) {}
+    const list = $("#fmList");
+    if (!rows || !rows.length) { list.innerHTML = '<p class="c-empty">还没有帖子。</p>'; return; }
+
+    const users = {};
+    try {
+      const us = await api("/rest/v1/profiles?select=id,username");
+      (us || []).forEach((u) => { users[u.id] = u.username; });
+    } catch (e) {}
+    const me = window.ACCOUNT.state().user.id;
+
+    list.innerHTML = "";
+    rows.forEach((p) => {
+      const d = document.createElement("div");
+      d.className = "admin-row";
+      const label = p.status === "pending" ? "待审核" : p.status === "approved" ? "已通过" : "已拒绝";
+      d.innerHTML =
+        '<div class="ar-main"><b class="ar-title"></b>' +
+        '<span class="ar-sub">' + label + ' · ' + (users[p.user_id] || "匿名") + ' · ' + fmt(p.created_at) + '</span></div>' +
+        '<div class="ar-btns">' +
+        (p.status !== "approved" ? '<button type="button" class="tag" data-act="ok">通过</button>' : "") +
+        (p.status !== "rejected" ? '<button type="button" class="tag danger" data-act="no">拒绝</button>' : "") +
+        '<button type="button" class="tag danger" data-act="del">删除</button></div>';
+      d.querySelector(".ar-title").textContent = (p.title || "无标题") + " —— " + String(p.body || "").slice(0, 50);
+      const set = async (status) => {
+        try {
+          await api("/rest/v1/forum_posts?id=eq." + enc(p.id), {
+            method: "PATCH",
+            body: { status, reviewed_at: new Date().toISOString(), reviewed_by: me },
+          });
+          renderForum();
+        } catch (e) { alert("操作失败：" + e.message); }
+      };
+      const ok = d.querySelector('[data-act="ok"]');
+      const no = d.querySelector('[data-act="no"]');
+      if (ok) ok.onclick = () => set("approved");
+      if (no) no.onclick = () => set("rejected");
+      d.querySelector('[data-act="del"]').onclick = async () => {
+        if (!confirm("彻底删除这个帖子？")) return;
+        try {
+          await api("/rest/v1/forum_posts?id=eq." + enc(p.id), { method: "DELETE" });
+          renderForum();
         } catch (e) { alert("删不掉：" + e.message); }
       };
       list.appendChild(d);

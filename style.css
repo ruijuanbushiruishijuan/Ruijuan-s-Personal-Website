@@ -1029,3 +1029,59 @@ html[data-theme="dark"] .deco{opacity:.22}
 }
 .tags::-webkit-scrollbar{display:none;width:0;height:0}
 .tags .tag{flex:0 0 auto}
+
+/* ===== 通知条 ===== */
+.notice-tip{
+  display:flex;align-items:center;gap:10px;
+  background:var(--red);color:var(--paper);
+  border:2px solid var(--ink);border-top:none;
+  padding:9px 12px;margin-bottom:0;
+  font-size:12px;letter-spacing:.1em;font-weight:700;
+  animation:tipIn .35s ease-out;
+}
+.notice-tip .lt-mark{color:var(--yellow)}
+.notice-tip .lt-go{
+  background:var(--paper);color:var(--ink);border-color:var(--paper);
+}
+.notice-tip .lt-go:hover{background:var(--yellow);border-color:var(--yellow);color:var(--ink)}
+
+/* 通知面板 */
+.notice-body{padding:4px 0 8px}
+.notice-row{
+  padding:12px 16px;border-bottom:1px solid var(--hair);cursor:pointer;
+  transition:background .16s;
+}
+.notice-row:last-child{border-bottom:none}
+.notice-row:hover{background:var(--wash)}
+.nr-top{display:flex;align-items:baseline;gap:10px}
+.nr-title{font-size:13px;letter-spacing:.04em}
+.nr-time{margin-left:auto;font-size:10.5px;color:var(--gray);white-space:nowrap}
+.nr-body{
+  margin-top:5px;font-size:12.5px;line-height:1.65;color:var(--gray);
+  word-break:break-word;
+}
+
+/* ===== 论坛 ===== */
+.d-forum{
+  background:
+    repeating-linear-gradient(-45deg, var(--red) 0 3px, transparent 3px 17px),
+    radial-gradient(circle at 30% 72%, transparent 0 21%, var(--blue) 21% 24%, transparent 25%);
+}
+.forum-form{
+  display:flex;flex-direction:column;gap:10px;margin-bottom:30px;
+  border:2px solid var(--ink);padding:14px;
+}
+.forum-title-input{
+  border:none;border-bottom:2px solid var(--hair);background:transparent;color:var(--ink);
+  font-family:inherit;font-size:16px;font-weight:800;letter-spacing:.02em;
+  padding:6px 2px 8px;outline:none;width:100%;
+}
+.forum-title-input:focus{border-bottom-color:var(--red)}
+.forum-form textarea{
+  border:2px solid var(--ink);background:transparent;color:var(--ink);
+  font-family:inherit;font-size:14px;line-height:1.7;padding:10px;outline:none;
+  resize:vertical;min-height:110px;width:100%;
+}
+.forum-form textarea:focus{box-shadow:4px 4px 0 var(--yellow)}
+.forum-list{display:flex;flex-direction:column}
+.fp-body{white-space:pre-wrap;word-break:break-word}

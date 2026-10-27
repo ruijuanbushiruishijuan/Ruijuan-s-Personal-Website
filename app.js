@@ -191,13 +191,13 @@
 
   /* ---------- 区块切换 ---------- */
   function showSection(name) {
-    ["list", "article", "works", "archive", "about", "qa", "tools", "account", "admin"].forEach(id => {
+    ["list", "article", "works", "archive", "about", "qa", "forum", "forumPost", "tools", "account", "admin"].forEach(id => {
       const el = $("#" + id);
       if (el) el.hidden = (id !== name);
     });
     document.querySelectorAll(".nav a").forEach(a => a.classList.remove("active"));
     const navFor = { list: "#navList", archive: '.nav a[href="#archive"]',
-      about: '.nav a[href="#about"]' };
+      about: '.nav a[href="#about"]', forum: '.nav a[href="#forum"]' };
     const sel = navFor[name];
     if (sel && $(sel)) {
       $(sel).classList.add("active");
@@ -206,6 +206,11 @@
     updateProgress();
   }
   window.SHOW_SECTION = showSection;
+
+  window.OPEN_POST_BY_ID = (id) => {
+    const p = POSTS.find((x) => String(x.id) === String(id));
+    if (p) openPost(p);
+  };
 
   $("#backBtn").onclick = () => { showSection("list"); window.scrollTo({ top: 0 }); };
 
